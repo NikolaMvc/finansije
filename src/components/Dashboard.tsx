@@ -72,10 +72,10 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onOpenMenu, on
         {/* Remaining — Yellow */}
         <div className="bg-[#1a1600] rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]">
           <span
-            className="text-[22px] font-bold leading-none tabular-nums"
+            className="text-[16px] font-bold leading-none tabular-nums"
             style={{ color: remaining < 0 ? '#e85c5c' : '#f0c040' }}
           >
-            {remaining < 0 ? '-' : ''}€{fmt(remaining, 0)}
+            {remaining < 0 ? '-' : ''}€{fmt(remaining)}
           </span>
         </div>
 
