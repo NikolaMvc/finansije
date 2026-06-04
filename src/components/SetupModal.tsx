@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { MonthProfile } from '../types'
+import type { MonthProfile, Transaction } from '../types'
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -13,16 +13,14 @@ interface FixedRow {
 
 interface Props {
   isOpen: boolean
-  existingKeys: string[]
-  existingTransactions?: (key: string) => import('../types').Transaction[]
+  year: number
+  month: number
+  existingTransactions: Transaction[]
   onSave: (profile: MonthProfile) => void
   onClose: () => void
 }
 
-export default function SetupModal({ isOpen, onSave, onClose, existingTransactions }: Props) {
-  const now = new Date()
-  const [selYear, setSelYear] = useState(now.getFullYear())
-  const [selMonth, setSelMonth] = useState(now.getMonth() + 1)
+export default function SetupModal({ isOpen, year, month, existingTransactions, onSave, onClose }: Props) {
   const [salary, setSalary] = useState('')
   const [savingsGoal, setSavingsGoal] = useState('')
   const [fixedRows, setFixedRows] = useState<FixedRow[]>([
@@ -30,11 +28,11 @@ export default function SetupModal({ isOpen, onSave, onClose, existingTransactio
   ])
 
   function handleSave() {
-    const key = `${selYear}-${String(selMonth).padStart(2, '0')}`
+    const key = `${year}-${String(month).padStart(2, '0')}`
     const profile: MonthProfile = {
       key,
-      year: selYear,
-      month: selMonth,
+      year,
+      month,
       salary: parseFloat(salary) || 0,
       savingsGoal: parseFloat(savingsGoal) || 0,
       fixedExpenses: fixedRows
@@ -44,7 +42,7 @@ export default function SetupModal({ isOpen, onSave, onClose, existingTransactio
           amount: parseFloat(r.amount),
           description: r.description.trim() || 'Fixed expense',
         })),
-      transactions: existingTransactions ? existingTransactions(key) : [],
+      transactions: existingTransactions,
     }
     onSave(profile)
   }
@@ -56,8 +54,6 @@ export default function SetupModal({ isOpen, onSave, onClose, existingTransactio
   function removeRow(i: number) {
     setFixedRows(prev => prev.filter((_, idx) => idx !== i))
   }
-
-  const years = [now.getFullYear(), now.getFullYear() + 1]
 
   if (!isOpen) return null
 
@@ -74,7 +70,9 @@ export default function SetupModal({ isOpen, onSave, onClose, existingTransactio
         >
           Cancel
         </button>
-        <span className="text-white text-sm font-semibold tracking-wide">New Month</span>
+        <span className="text-white text-sm font-semibold">
+          {MONTH_NAMES[month - 1]} {year}
+        </span>
         <button
           onClick={handleSave}
           className="text-[#42d392] text-sm font-semibold active:opacity-60 transition-opacity"
@@ -85,49 +83,6 @@ export default function SetupModal({ isOpen, onSave, onClose, existingTransactio
 
       {/* Scrollable form */}
       <div className="flex-1 overflow-y-auto scrollbar-none px-5 py-5 space-y-6">
-        {/* Year selector */}
-        <div>
-          <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold mb-2">Year</p>
-          <div className="flex gap-2">
-            {years.map(y => (
-              <button
-                key={y}
-                onClick={() => setSelYear(y)}
-                className={`flex-1 py-2.5 rounded-2xl text-sm font-medium transition-colors ${
-                  selYear === y
-                    ? 'bg-[#42d392] text-black'
-                    : 'bg-white/5 text-gray-400'
-                }`}
-              >
-                {y}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Month selector */}
-        <div>
-          <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold mb-2">Month</p>
-          <div className="grid grid-cols-4 gap-2">
-            {MONTH_NAMES.map((name, idx) => {
-              const m = idx + 1
-              const isSelected = selMonth === m
-              return (
-                <button
-                  key={m}
-                  onClick={() => setSelMonth(m)}
-                  className={`py-2.5 rounded-2xl text-sm font-medium transition-colors ${
-                    isSelected
-                      ? 'bg-[#42d392] text-black'
-                      : 'bg-white/5 text-gray-400'
-                  }`}
-                >
-                  {name.slice(0, 3)}
-                </button>
-              )
-            })}
-          </div>
-        </div>
 
         {/* Salary */}
         <div>
@@ -141,6 +96,7 @@ export default function SetupModal({ isOpen, onSave, onClose, existingTransactio
               onChange={e => setSalary(e.target.value)}
               placeholder="0.00"
               className="flex-1 bg-transparent text-white text-lg outline-none placeholder:text-gray-700"
+              autoFocus
             />
           </div>
         </div>
