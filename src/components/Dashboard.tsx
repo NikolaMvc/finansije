@@ -39,9 +39,9 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onOpenMenu, on
   const spentBg = net > 0 ? '#001610' : net < 0 ? '#1a0606' : '#000f1a'
   const spentColor = net > 0 ? '#42d392' : net < 0 ? '#e85c5c' : '#4db8e8'
 
-  const sortedTxs: Transaction[] = [...profile.transactions].sort(
-    (a, b) => b.date.localeCompare(a.date) || 0,
-  )
+  const sortedTxs: Transaction[] = [...profile.transactions]
+    .reverse()
+    .sort((a, b) => b.date.localeCompare(a.date))
 
   return (
     <div
