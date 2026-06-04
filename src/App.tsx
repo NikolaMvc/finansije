@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { AppData, MonthProfile, Transaction } from './types'
+import type { AppData, MonthProfile, Transaction, FixedExpense } from './types'
 import { loadData, saveData } from './utils/storage'
 import Dashboard from './components/Dashboard'
 import SetupModal from './components/SetupModal'
 import AddTxModal from './components/AddTxModal'
 import HistoryView from './components/HistoryView'
 import HelpPanel from './components/HelpPanel'
+import EditSalaryModal from './components/EditSalaryModal'
+import EditSavingsModal from './components/EditSavingsModal'
 
 function genId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`
@@ -16,14 +18,35 @@ function curKey(): string {
   return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}`
 }
 
+// If a new calendar month has started and previous months exist,
+// auto-create an empty profile for the current month.
+function ensureCurrentMonth(loaded: AppData): AppData | null {
+  const key = curKey()
+  if (loaded.months[key]) {
+    if (loaded.activeMonthKey === key) return null
+    return { ...loaded, activeMonthKey: key }
+  }
+  // First-time user — let them use the welcome screen
+  if (Object.keys(loaded.months).length === 0) return null
+  // Previous months exist → new month started
+  const n = new Date()
+  const newProfile: MonthProfile = {
+    key,
+    year: n.getFullYear(),
+    month: n.getMonth() + 1,
+    salary: 0,
+    savingsGoal: 0,
+    fixedExpenses: [],
+    transactions: [],
+  }
+  return { months: { ...loaded.months, [key]: newProfile }, activeMonthKey: key }
+}
+
 export default function App() {
   const [data, setData] = useState<AppData>(() => {
     const loaded = loadData()
-    const key = curKey()
-    // Auto-switch to current month if it exists
-    if (loaded.months[key]) {
-      return { ...loaded, activeMonthKey: key }
-    }
+    const updated = ensureCurrentMonth(loaded)
+    if (updated) { saveData(updated); return updated }
     return loaded
   })
 
@@ -31,6 +54,8 @@ export default function App() {
   const [showAddTx, setShowAddTx] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
+  const [showEditSalary, setShowEditSalary] = useState(false)
+  const [showEditSavings, setShowEditSavings] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
   const now = new Date()
@@ -47,12 +72,18 @@ export default function App() {
     saveData(next)
   }, [])
 
-  // Re-render at midnight so daily budget recalculates
+  // Re-render at midnight; also auto-create new month profile if needed
   useEffect(() => {
     const n = new Date()
     const tomorrow = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1)
     const ms = tomorrow.getTime() - n.getTime()
-    const id = setTimeout(() => setData(d => ({ ...d })), ms)
+    const id = setTimeout(() => {
+      setData(d => {
+        const updated = ensureCurrentMonth(d)
+        if (updated) { saveData(updated); return updated }
+        return { ...d }
+      })
+    }, ms)
     return () => clearTimeout(id)
   }, [])
 
@@ -89,16 +120,26 @@ export default function App() {
     update({ ...data, months: { ...data.months, [activeProfile.key]: updated } })
   }
 
-  // Used by HistoryView to add a retroactive transaction to any month
   function handleAddTxToMonth(monthKey: string, tx: Omit<Transaction, 'id'>) {
     const profile = data.months[monthKey]
     if (!profile) return
     const newTx: Transaction = { ...tx, id: genId() }
-    const updated: MonthProfile = {
-      ...profile,
-      transactions: [...profile.transactions, newTx],
-    }
+    const updated: MonthProfile = { ...profile, transactions: [...profile.transactions, newTx] }
     update({ ...data, months: { ...data.months, [monthKey]: updated } })
+  }
+
+  function handleUpdateSalary(salary: number, fixedExpenses: FixedExpense[]) {
+    if (!activeProfile) return
+    const updated: MonthProfile = { ...activeProfile, salary, fixedExpenses }
+    update({ ...data, months: { ...data.months, [activeProfile.key]: updated } })
+    setShowEditSalary(false)
+  }
+
+  function handleUpdateSavings(savingsGoal: number) {
+    if (!activeProfile) return
+    const updated: MonthProfile = { ...activeProfile, savingsGoal }
+    update({ ...data, months: { ...data.months, [activeProfile.key]: updated } })
+    setShowEditSavings(false)
   }
 
   function handleCurrentMonth() {
@@ -114,7 +155,6 @@ export default function App() {
   return (
     <div className="h-dvh w-full bg-[#0a0a0a] overflow-hidden relative">
 
-      {/* ── Base screen ── */}
       {!activeProfile ? (
         <WelcomeScreen onStart={() => setShowSetup(true)} />
       ) : (
@@ -122,12 +162,14 @@ export default function App() {
           profile={activeProfile}
           onAddTx={() => setShowAddTx(true)}
           onDeleteTx={handleDeleteTx}
+          onEditSalary={() => setShowEditSalary(true)}
+          onEditSavings={() => setShowEditSavings(true)}
           onOpenMenu={() => setMenuOpen(true)}
           onOpenHelp={() => setShowHelp(true)}
         />
       )}
 
-      {/* ── Slide-out menu ── */}
+      {/* Menu */}
       {menuOpen && (
         <div
           className="absolute inset-0 z-30 animate-fade-in"
@@ -146,7 +188,6 @@ export default function App() {
         </div>
       )}
 
-      {/* ── Modals ── */}
       <SetupModal
         isOpen={showSetup}
         year={setupYear}
@@ -173,6 +214,21 @@ export default function App() {
         isOpen={showHelp}
         onClose={() => setShowHelp(false)}
       />
+
+      <EditSalaryModal
+        isOpen={showEditSalary}
+        currentSalary={activeProfile?.salary ?? 0}
+        currentFixed={activeProfile?.fixedExpenses ?? []}
+        onSave={handleUpdateSalary}
+        onClose={() => setShowEditSalary(false)}
+      />
+
+      <EditSavingsModal
+        isOpen={showEditSavings}
+        currentGoal={activeProfile?.savingsGoal ?? 0}
+        onSave={handleUpdateSavings}
+        onClose={() => setShowEditSavings(false)}
+      />
     </div>
   )
 }
@@ -184,9 +240,7 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
       style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="text-center mb-10">
-        <h1 className="text-[38px] font-bold text-white tracking-tight leading-none mb-3">
-          Finansije
-        </h1>
+        <h1 className="text-[38px] font-bold text-white tracking-tight leading-none mb-3">Finansije</h1>
         <p className="text-gray-600 text-sm">Track spending. Hit your savings goal.</p>
       </div>
       <button

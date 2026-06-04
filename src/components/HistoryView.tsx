@@ -189,7 +189,8 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             {profile && !addingTx && (
               <button
                 onClick={() => setAddingTx(true)}
-                className="w-6 h-6 rounded-full bg-white/10 text-gray-400 text-base flex items-center justify-center active:bg-white/20 leading-none"
+                className="w-6 h-6 rounded-full bg-white/10 text-gray-400 text-[14px] flex items-center justify-center active:bg-white/20"
+              style={{ lineHeight: 1 }}
               >
                 +
               </button>

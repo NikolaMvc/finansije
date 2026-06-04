@@ -8,6 +8,8 @@ interface Props {
   profile: MonthProfile
   onAddTx: () => void
   onDeleteTx: (id: string) => void
+  onEditSalary: () => void
+  onEditSavings: () => void
   onOpenMenu: () => void
   onOpenHelp: () => void
 }
@@ -22,7 +24,7 @@ function fmtDate(ds: string): string {
   return `${parseInt(d)} ${month}`
 }
 
-export default function Dashboard({ profile, onAddTx, onDeleteTx, onOpenMenu, onOpenHelp }: Props) {
+export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, onEditSavings, onOpenMenu, onOpenHelp }: Props) {
   const [expanded, setExpanded] = useState(false)
   const [, setTick] = useState(0)
 
@@ -69,7 +71,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onOpenMenu, on
 
       {/* ── Top 3 cards ── */}
       <div className="flex-none px-4 pb-3 grid grid-cols-3 gap-2.5">
-        {/* Remaining — Yellow */}
+        {/* Remaining — Yellow (read-only) */}
         <div className="bg-[#1a1600] rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]">
           <span
             className="text-[16px] font-bold leading-none tabular-nums"
@@ -79,19 +81,37 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onOpenMenu, on
           </span>
         </div>
 
-        {/* Savings Goal — Green */}
-        <div className="bg-[#001610] rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]">
-          <span className="text-[22px] font-bold leading-none text-[#42d392] tabular-nums">
-            €{fmt(profile.savingsGoal, 0)}
-          </span>
-        </div>
+        {/* Savings Goal — Green (clickable) */}
+        <button
+          onClick={onEditSavings}
+          className="bg-[#001610] rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px] active:opacity-70 transition-opacity"
+        >
+          {profile.savingsGoal === 0 ? (
+            <span className="text-[11px] font-semibold text-[#42d392] opacity-50 text-center leading-tight">
+              Add savings
+            </span>
+          ) : (
+            <span className="text-[22px] font-bold leading-none text-[#42d392] tabular-nums">
+              €{fmt(profile.savingsGoal, 0)}
+            </span>
+          )}
+        </button>
 
-        {/* Salary — Blue */}
-        <div className="bg-[#000f1a] rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]">
-          <span className="text-[22px] font-bold leading-none text-[#4db8e8] tabular-nums">
-            €{fmt(profile.salary, 0)}
-          </span>
-        </div>
+        {/* Salary — Blue (clickable) */}
+        <button
+          onClick={onEditSalary}
+          className="bg-[#000f1a] rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px] active:opacity-70 transition-opacity"
+        >
+          {profile.salary === 0 ? (
+            <span className="text-[11px] font-semibold text-[#4db8e8] opacity-50 text-center leading-tight">
+              Add salary
+            </span>
+          ) : (
+            <span className="text-[22px] font-bold leading-none text-[#4db8e8] tabular-nums">
+              €{fmt(profile.salary, 0)}
+            </span>
+          )}
+        </button>
       </div>
 
       {/* ── Spent section (expands) ── */}
