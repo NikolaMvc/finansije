@@ -61,7 +61,7 @@ export default function EditSalaryModal({ isOpen, currentSalary, currentFixed, o
           <div className="w-9 h-1 bg-white/15 rounded-full" />
         </div>
 
-        <div className="px-5 pb-4 space-y-5 overflow-y-auto scrollbar-none">
+        <div className="px-5 pb-4 space-y-5">
           {/* Salary */}
           <div>
             <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold mb-2">Monthly Salary</p>
