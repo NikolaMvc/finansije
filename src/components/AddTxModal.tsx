@@ -82,12 +82,20 @@ export default function AddTxModal({ isOpen, onAdd, onClose }: Props) {
                   onKeyDown={e => e.key === 'Enter' && addExpense()}
                 />
               </div>
-              <button
-                onClick={addExpense}
-                className="w-full py-3.5 rounded-2xl bg-[#1c0808] text-[#e85c5c] font-semibold text-sm tracking-wide active:opacity-70 transition-opacity"
-              >
-                Add Expense
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-3.5 rounded-2xl bg-white/5 text-gray-500 text-sm font-medium active:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={addExpense}
+                  className="flex-1 py-3.5 rounded-2xl bg-[#1c0808] text-[#e85c5c] font-semibold text-sm tracking-wide active:opacity-70 transition-opacity"
+                >
+                  Add Expense
+                </button>
+              </div>
             </div>
           </div>
 
@@ -120,12 +128,20 @@ export default function AddTxModal({ isOpen, onAdd, onClose }: Props) {
                   onKeyDown={e => e.key === 'Enter' && addIncome()}
                 />
               </div>
-              <button
-                onClick={addIncome}
-                className="w-full py-3.5 rounded-2xl bg-[#001610] text-[#42d392] font-semibold text-sm tracking-wide active:opacity-70 transition-opacity"
-              >
-                Add Income
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-3.5 rounded-2xl bg-white/5 text-gray-500 text-sm font-medium active:opacity-60"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={addIncome}
+                  className="flex-1 py-3.5 rounded-2xl bg-[#001610] text-[#42d392] font-semibold text-sm tracking-wide active:opacity-70 transition-opacity"
+                >
+                  Add Income
+                </button>
+              </div>
             </div>
           </div>
         </div>

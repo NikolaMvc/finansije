@@ -68,7 +68,13 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           {MON_SHORT[profile.month - 1]} {profile.year}
         </span>
 
-        <div className="w-10" />
+        <button
+          onClick={() => window.location.reload()}
+          className="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 text-lg active:text-gray-300 transition-colors"
+          aria-label="Refresh"
+        >
+          ↻
+        </button>
       </div>
 
       {/* ── Top 3 cards ── */}
