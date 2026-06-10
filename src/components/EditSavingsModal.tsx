@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useKeyboardOffset } from '../utils/useKeyboardOffset'
 
 interface Props {
   isOpen: boolean
@@ -9,6 +10,7 @@ interface Props {
 
 export default function EditSavingsModal({ isOpen, currentGoal, onSave, onClose }: Props) {
   const [goal, setGoal] = useState('')
+  const keyboardOffset = useKeyboardOffset()
 
   useEffect(() => {
     if (isOpen) setGoal(currentGoal > 0 ? String(currentGoal) : '')
@@ -20,8 +22,11 @@ export default function EditSavingsModal({ isOpen, currentGoal, onSave, onClose 
     <>
       <div className="absolute inset-0 z-40 bg-black/60 animate-fade-in" onClick={onClose} />
       <div
-        className="absolute bottom-0 left-0 right-0 z-50 bg-[#111] rounded-t-[28px] animate-slide-up"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}
+        className="absolute left-0 right-0 z-50 bg-[#111] rounded-t-[28px] animate-slide-up"
+        style={{
+          bottom: keyboardOffset,
+          paddingBottom: keyboardOffset > 0 ? '8px' : 'calc(env(safe-area-inset-bottom) + 8px)',
+        }}
       >
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-9 h-1 bg-white/15 rounded-full" />

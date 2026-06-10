@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { FixedExpense } from '../types'
+import { useKeyboardOffset } from '../utils/useKeyboardOffset'
 
 interface Row { amount: string; description: string }
 
@@ -14,6 +15,7 @@ interface Props {
 export default function EditSalaryModal({ isOpen, currentSalary, currentFixed, onSave, onClose }: Props) {
   const [salary, setSalary] = useState('')
   const [rows, setRows] = useState<Row[]>([{ amount: '', description: '' }])
+  const keyboardOffset = useKeyboardOffset()
 
   useEffect(() => {
     if (isOpen) {
@@ -48,14 +50,18 @@ export default function EditSalaryModal({ isOpen, currentSalary, currentFixed, o
     <>
       <div className="absolute inset-0 z-40 bg-black/60 animate-fade-in" onClick={onClose} />
       <div
-        className="absolute bottom-0 left-0 right-0 z-50 bg-[#111] rounded-t-[28px] animate-slide-up"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}
+        className="absolute left-0 right-0 z-50 bg-[#111] rounded-t-[28px] animate-slide-up overflow-hidden flex flex-col"
+        style={{
+          bottom: keyboardOffset,
+          paddingBottom: keyboardOffset > 0 ? '8px' : 'calc(env(safe-area-inset-bottom) + 8px)',
+          maxHeight: `calc(100vh - ${keyboardOffset}px - 40px)`,
+        }}
       >
-        <div className="flex justify-center pt-3 pb-2">
+        <div className="flex justify-center pt-3 pb-2 flex-none">
           <div className="w-9 h-1 bg-white/15 rounded-full" />
         </div>
 
-        <div className="px-5 pb-4 space-y-5">
+        <div className="px-5 pb-4 space-y-5 overflow-y-auto scrollbar-none">
           {/* Salary */}
           <div>
             <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold mb-2">Monthly Salary</p>

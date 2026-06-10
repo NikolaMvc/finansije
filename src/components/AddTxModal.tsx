@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Transaction } from '../types'
+import { useKeyboardOffset } from '../utils/useKeyboardOffset'
 
 interface Props {
   isOpen: boolean
@@ -9,6 +10,7 @@ interface Props {
 
 export default function AddTxModal({ isOpen, onAdd, onClose }: Props) {
   const [expAmt, setExpAmt] = useState('')
+  const keyboardOffset = useKeyboardOffset()
   const [expDesc, setExpDesc] = useState('')
   const [incAmt, setIncAmt] = useState('')
   const [incDesc, setIncDesc] = useState('')
@@ -40,14 +42,18 @@ export default function AddTxModal({ isOpen, onAdd, onClose }: Props) {
         onClick={onClose}
       />
       <div
-        className="absolute bottom-0 left-0 right-0 z-50 bg-[#111] rounded-t-[28px] animate-slide-up"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}
+        className="absolute left-0 right-0 z-50 bg-[#111] rounded-t-[28px] animate-slide-up overflow-hidden flex flex-col"
+        style={{
+          bottom: keyboardOffset,
+          paddingBottom: keyboardOffset > 0 ? '8px' : 'calc(env(safe-area-inset-bottom) + 8px)',
+          maxHeight: `calc(100vh - ${keyboardOffset}px - 40px)`,
+        }}
       >
-        <div className="flex justify-center pt-3 pb-2">
+        <div className="flex justify-center pt-3 pb-2 flex-none">
           <div className="w-9 h-1 bg-white/15 rounded-full" />
         </div>
 
-        <div className="px-5 pb-2 space-y-5">
+        <div className="px-5 pb-2 space-y-5 overflow-y-auto scrollbar-none">
           {/* Expense */}
           <div>
             <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold mb-3">
