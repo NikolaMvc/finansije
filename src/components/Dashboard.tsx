@@ -207,6 +207,11 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
             >
               €{todayBudget > 0 ? fmt(todayBudget) : '0.00'}
             </span>
+            {todayBudget <= 0 && (
+              <p className="text-[11px] text-[#e85c5c] opacity-60 mt-1.5 tabular-nums leading-none">
+                -€{fmt(Math.abs(todayBudget))}
+              </p>
+            )}
           </div>
         </div>
       </div>
