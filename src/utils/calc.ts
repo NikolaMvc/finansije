@@ -41,6 +41,12 @@ export function getDailyBudget(p: MonthProfile): number {
   return rem / days
 }
 
+// Fixed daily rate at month start (salary - goal - fixed) / daysInMonth
+export function getStartDailyBudget(p: MonthProfile): number {
+  const daysInMonth = new Date(p.year, p.month, 0).getDate()
+  return (p.salary - p.savingsGoal - fixedTotal(p)) / daysInMonth
+}
+
 // Carry-over today's budget:
 // Each day you "earn" (totalSpendable / daysInMonth) of budget.
 // Accumulated budget from day 1 to today minus all expenses + income = what's available today.

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { MonthProfile, Transaction } from '../types'
-import { getRemaining, getSpentSoFar, getDailyBudget, getTodayBudget, incomeTotal, expensesTotal } from '../utils/calc'
+import { getRemaining, getSpentSoFar, getDailyBudget, getTodayBudget, getStartDailyBudget, incomeTotal, expensesTotal } from '../utils/calc'
 
 const MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -38,6 +38,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
   const spent = getSpentSoFar(profile)
   const daily = getDailyBudget(profile)
   const todayBudget = getTodayBudget(profile)
+  const startDaily = getStartDailyBudget(profile)
   const net = incomeTotal(profile) - expensesTotal(profile)
   const spentBg = net > 0 ? '#001610' : net < 0 ? '#1a0606' : '#000f1a'
   const spentColor = net > 0 ? '#42d392' : net < 0 ? '#e85c5c' : '#4db8e8'
@@ -190,6 +191,9 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
               €{fmt(daily)}
             </span>
             <span className="text-gray-600 text-xs ml-1">/day</span>
+            <p className="text-[11px] text-gray-600 opacity-50 mt-1.5 tabular-nums leading-none">
+              €{fmt(startDaily)}/day
+            </p>
           </div>
         </div>
 
