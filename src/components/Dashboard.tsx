@@ -69,7 +69,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
         </span>
 
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => { window.location.href = window.location.origin + window.location.pathname }}
           className="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 text-lg active:text-gray-300 transition-colors"
           aria-label="Refresh"
         >
