@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { MonthProfile, Transaction } from '../types'
-import { getRemaining, getSpentSoFar, getDailyBudget, incomeTotal, expensesTotal } from '../utils/calc'
+import { getRemaining, getSpentSoFar, getDailyBudget, getTodayBudget, incomeTotal, expensesTotal } from '../utils/calc'
 
 const MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -37,6 +37,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
   const remaining = getRemaining(profile)
   const spent = getSpentSoFar(profile)
   const daily = getDailyBudget(profile)
+  const todayBudget = getTodayBudget(profile)
   const net = incomeTotal(profile) - expensesTotal(profile)
   const spentBg = net > 0 ? '#001610' : net < 0 ? '#1a0606' : '#000f1a'
   const spentColor = net > 0 ? '#42d392' : net < 0 ? '#e85c5c' : '#4db8e8'
@@ -178,16 +179,35 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
       {/* Spacer when collapsed */}
       {!expanded && <div className="flex-1" />}
 
-      {/* ── Daily Budget ── */}
-      <div className="flex-none px-4 mt-3">
-        <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">
-          Daily Budget
-        </p>
-        <div className="bg-[#1a1600] rounded-[20px] px-5 py-5">
-          <span className="text-[34px] font-bold text-[#f0c040] leading-none tabular-nums">
-            €{fmt(daily)}
-          </span>
-          <span className="text-gray-600 text-sm ml-2">/day</span>
+      {/* ── Daily Budget + Today's Budget ── */}
+      <div className="flex-none px-4 mt-3 flex gap-2.5">
+        <div className="flex-1">
+          <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">
+            Daily Budget
+          </p>
+          <div className="bg-[#1a1600] rounded-[20px] px-4 py-5">
+            <span className="text-[22px] font-bold text-[#f0c040] leading-none tabular-nums">
+              €{fmt(daily)}
+            </span>
+            <span className="text-gray-600 text-xs ml-1">/day</span>
+          </div>
+        </div>
+
+        <div className="flex-1">
+          <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">
+            Today's Budget
+          </p>
+          <div
+            className="rounded-[20px] px-4 py-5"
+            style={{ backgroundColor: todayBudget > 0 ? '#1a1600' : '#1a0606' }}
+          >
+            <span
+              className="text-[22px] font-bold leading-none tabular-nums"
+              style={{ color: todayBudget > 0 ? '#f0c040' : '#e85c5c' }}
+            >
+              €{todayBudget > 0 ? fmt(todayBudget) : '0.00'}
+            </span>
+          </div>
         </div>
       </div>
 

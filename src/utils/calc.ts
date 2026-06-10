@@ -40,3 +40,15 @@ export function getDailyBudget(p: MonthProfile): number {
   const days = remainingDays(p.year, p.month)
   return rem / days
 }
+
+// Carry-over today's budget:
+// Each day you "earn" (totalSpendable / daysInMonth) of budget.
+// Accumulated budget from day 1 to today minus all expenses + income = what's available today.
+export function getTodayBudget(p: MonthProfile): number {
+  const today = new Date()
+  const daysInMonth = new Date(p.year, p.month, 0).getDate()
+  const baseDailyRate = (p.salary - p.savingsGoal - fixedTotal(p)) / daysInMonth
+  const isCurrentMonth = today.getFullYear() === p.year && today.getMonth() + 1 === p.month
+  const day = isCurrentMonth ? today.getDate() : daysInMonth
+  return day * baseDailyRate - expensesTotal(p) + incomeTotal(p)
+}
