@@ -90,7 +90,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   if (!isOpen) return null
 
   const selTxs = selectedDay ? dayTxs(selectedDay) : []
-  const achieved = profile ? getRemaining(profile) >= 0 : null
+  const achieved = profile && profile.salary > 0 ? getRemaining(profile) >= 0 : null
 
   return (
     <div
@@ -120,8 +120,8 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
         </button>
       </div>
 
-      {/* Summary bar */}
-      {profile && (
+      {/* Summary bar — only when month has actual data */}
+      {profile && profile.salary > 0 && (
         <div className="flex-none px-4 pb-3 grid grid-cols-3 gap-2">
           <div className="bg-[#1c0808] rounded-2xl px-2 py-2 text-center">
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Spent</div>

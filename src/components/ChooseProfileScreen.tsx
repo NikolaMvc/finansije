@@ -73,11 +73,7 @@ export default function ChooseProfileScreen({ profiles, onSelect, onCreateNew, o
                   className="flex-1 bg-[#111] rounded-2xl px-4 py-4 text-left flex items-center justify-between active:opacity-70 transition-opacity"
                 >
                   <span className="text-white font-medium text-base">{profile.name}</span>
-                  <span className="text-gray-700 text-xs tabular-nums">
-                    {Object.keys(profile.months).length > 0
-                      ? `${Object.keys(profile.months).length}mo`
-                      : 'New'}
-                  </span>
+                  <span className="text-gray-700 text-xs">›</span>
                 </button>
                 <button
                   onClick={e => startEdit(profile, e)}
