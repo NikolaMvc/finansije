@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { MonthProfile, Transaction } from '../types'
-import { getRemaining, getSpentSoFar, incomeTotal, fixedTotal } from '../utils/calc'
+import { getRemaining, getSpentSoFar, fixedTotal } from '../utils/calc'
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -30,6 +30,13 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
 
   const key = `${viewYear}-${String(viewMonth).padStart(2, '0')}`
   const profile = months[key] ?? null
+
+  // Navigation bounds
+  const sortedKeys = Object.keys(months).sort()
+  const earliestKey = sortedKeys[0] ?? key
+  const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const canGoPrev = key > earliestKey
+  const canGoNext = key < todayKey
 
   function dayNet(day: number): number | null {
     if (!profile) return null
@@ -74,6 +81,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   const daysInMonth = new Date(viewYear, viewMonth, 0).getDate()
 
   function prevMonth() {
+    if (!canGoPrev) return
     if (viewMonth === 1) { setViewYear(y => y - 1); setViewMonth(12) }
     else setViewMonth(m => m - 1)
     setSelectedDay(null)
@@ -81,6 +89,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   }
 
   function nextMonth() {
+    if (!canGoNext) return
     if (viewMonth === 12) { setViewYear(y => y + 1); setViewMonth(1) }
     else setViewMonth(m => m + 1)
     setSelectedDay(null)
@@ -90,7 +99,14 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   if (!isOpen) return null
 
   const selTxs = selectedDay ? dayTxs(selectedDay) : []
-  const achieved = profile && profile.salary > 0 ? getRemaining(profile) >= 0 : null
+
+  // Summary bar calculations
+  const hasData = profile && profile.salary > 0
+  const remaining = hasData ? getRemaining(profile) : 0
+  const goalMet = hasData ? remaining >= 0 : null
+  const actualSaved = hasData
+    ? (remaining >= 0 ? profile.savingsGoal : Math.max(0, profile.savingsGoal + remaining))
+    : 0
 
   return (
     <div
@@ -109,33 +125,53 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
 
       {/* Month nav */}
       <div className="flex-none flex items-center justify-between px-5 py-3">
-        <button onClick={prevMonth} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-gray-400 text-lg active:bg-white/10">
+        <button
+          onClick={prevMonth}
+          disabled={!canGoPrev}
+          className={`w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-gray-400 text-lg transition-opacity ${canGoPrev ? 'active:bg-white/10' : 'opacity-20'}`}
+        >
           ‹
         </button>
         <span className="text-white font-semibold text-base">
           {MONTH_NAMES[viewMonth - 1]} {viewYear}
         </span>
-        <button onClick={nextMonth} className="w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-gray-400 text-lg active:bg-white/10">
+        <button
+          onClick={nextMonth}
+          disabled={!canGoNext}
+          className={`w-9 h-9 flex items-center justify-center rounded-xl bg-white/5 text-gray-400 text-lg transition-opacity ${canGoNext ? 'active:bg-white/10' : 'opacity-20'}`}
+        >
           ›
         </button>
       </div>
 
-      {/* Summary bar — only when month has actual data */}
-      {profile && profile.salary > 0 && (
+      {/* Summary bar — only when month has salary data */}
+      {hasData && (
         <div className="flex-none px-4 pb-3 grid grid-cols-3 gap-2">
+          {/* Spent */}
           <div className="bg-[#1c0808] rounded-2xl px-2 py-2 text-center">
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Spent</div>
-            <div className="text-sm font-bold text-[#e85c5c]">€{(getSpentSoFar(profile) + fixedTotal(profile)).toFixed(0)}</div>
-          </div>
-          <div className="bg-[#001610] rounded-2xl px-2 py-2 text-center">
-            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Earned</div>
-            <div className="text-sm font-bold text-[#42d392]">€{incomeTotal(profile).toFixed(0)}</div>
-          </div>
-          <div className={`rounded-2xl px-2 py-2 text-center ${achieved ? 'bg-[#001610]' : 'bg-[#1c0808]'}`}>
-            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Goal</div>
-            <div className={`text-sm font-bold ${achieved ? 'text-[#42d392]' : 'text-[#e85c5c]'}`}>
-              {achieved ? '✓ Met' : '✗ Missed'}
+            <div className="text-sm font-bold text-[#e85c5c]">
+              €{(getSpentSoFar(profile!) + fixedTotal(profile!)).toFixed(0)}
             </div>
+          </div>
+
+          {/* Salary */}
+          <div className="bg-[#000f1a] rounded-2xl px-2 py-2 text-center">
+            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Salary</div>
+            <div className="text-sm font-bold text-[#4db8e8]">€{profile!.salary.toFixed(0)}</div>
+          </div>
+
+          {/* Saved */}
+          <div className={`rounded-2xl px-2 py-2 text-center ${goalMet ? 'bg-[#001610]' : 'bg-[#1c0808]'}`}>
+            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Saved</div>
+            <div className={`text-sm font-bold leading-tight ${goalMet ? 'text-[#42d392]' : 'text-[#e85c5c]'}`}>
+              €{actualSaved.toFixed(0)}
+            </div>
+            {!goalMet && profile!.savingsGoal > 0 && (
+              <div className="text-[9px] text-gray-600 mt-0.5 leading-tight">
+                goal: €{profile!.savingsGoal.toFixed(0)}
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -190,7 +226,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
               <button
                 onClick={() => setAddingTx(true)}
                 className="w-6 h-6 rounded-full bg-white/10 text-gray-400 text-[14px] flex items-center justify-center active:bg-white/20"
-              style={{ lineHeight: 1 }}
+                style={{ lineHeight: 1 }}
               >
                 +
               </button>
@@ -217,7 +253,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
           {/* Inline add form */}
           {addingTx && (
             <div className="bg-[#111] rounded-2xl p-4 mt-2 space-y-3">
-              {/* Type toggle */}
               <div className="flex gap-2">
                 <button
                   onClick={() => setAddType('expense')}
@@ -233,7 +268,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                 </button>
               </div>
 
-              {/* Amount */}
               <div className="bg-[#1a1a1a] rounded-xl px-3 py-2.5 flex items-center gap-2">
                 <span className={`text-sm font-medium ${addType === 'expense' ? 'text-[#e85c5c]' : 'text-[#42d392]'}`}>€</span>
                 <input
@@ -247,7 +281,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                 />
               </div>
 
-              {/* Description */}
               <div className="bg-[#1a1a1a] rounded-xl px-3 py-2.5">
                 <input
                   type="text"
@@ -259,7 +292,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                 />
               </div>
 
-              {/* Actions */}
               <div className="flex gap-2">
                 <button
                   onClick={() => { setAddingTx(false); setAddAmount(''); setAddDesc('') }}
