@@ -1,14 +1,31 @@
-import type { AppData } from '../types'
+import type { AppData, MonthProfile } from '../types'
 
 const KEY = 'finansije_v1'
 
 export function loadData(): AppData {
   try {
-    const raw = localStorage.getItem(KEY)
-    if (!raw) return { months: {}, activeMonthKey: null }
-    return JSON.parse(raw) as AppData
+    const raw = JSON.parse(localStorage.getItem(KEY) ?? 'null')
+    if (!raw) return { profiles: {} }
+
+    // Migrate from old single-profile format (had top-level `months` key)
+    if ('months' in raw && !('profiles' in raw)) {
+      const migrated: AppData = {
+        profiles: {
+          default: {
+            id: 'default',
+            name: 'Profile 1',
+            months: (raw as { months: Record<string, MonthProfile> }).months ?? {},
+            activeMonthKey: (raw as { activeMonthKey: string | null }).activeMonthKey ?? null,
+          },
+        },
+      }
+      saveData(migrated)
+      return migrated
+    }
+
+    return raw as AppData
   } catch {
-    return { months: {}, activeMonthKey: null }
+    return { profiles: {} }
   }
 }
 

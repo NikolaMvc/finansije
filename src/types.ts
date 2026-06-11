@@ -22,7 +22,13 @@ export interface MonthProfile {
   transactions: Transaction[]
 }
 
-export interface AppData {
+export interface Profile {
+  id: string
+  name: string
   months: Record<string, MonthProfile>
   activeMonthKey: string | null
+}
+
+export interface AppData {
+  profiles: Record<string, Profile>
 }

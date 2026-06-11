@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import type { AppData, MonthProfile, Transaction, FixedExpense } from './types'
+import type { AppData, Profile, MonthProfile, Transaction, FixedExpense } from './types'
 import { loadData, saveData } from './utils/storage'
 import Dashboard from './components/Dashboard'
 import SetupModal from './components/SetupModal'
@@ -8,6 +8,8 @@ import HistoryView from './components/HistoryView'
 import HelpPanel from './components/HelpPanel'
 import EditSalaryModal from './components/EditSalaryModal'
 import EditSavingsModal from './components/EditSavingsModal'
+import ChooseProfileScreen from './components/ChooseProfileScreen'
+import CreateProfileModal from './components/CreateProfileModal'
 
 function genId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`
@@ -18,19 +20,15 @@ function curKey(): string {
   return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}`
 }
 
-// If a new calendar month has started and previous months exist,
-// auto-create an empty profile for the current month.
-function ensureCurrentMonth(loaded: AppData): AppData | null {
+function ensureCurrentMonthInProfile(profile: Profile): Profile | null {
   const key = curKey()
-  if (loaded.months[key]) {
-    if (loaded.activeMonthKey === key) return null
-    return { ...loaded, activeMonthKey: key }
+  if (profile.months[key]) {
+    if (profile.activeMonthKey === key) return null
+    return { ...profile, activeMonthKey: key }
   }
-  // First-time user — let them use the welcome screen
-  if (Object.keys(loaded.months).length === 0) return null
-  // Previous months exist → new month started
+  if (Object.keys(profile.months).length === 0) return null
   const n = new Date()
-  const newProfile: MonthProfile = {
+  const newMonth: MonthProfile = {
     key,
     year: n.getFullYear(),
     month: n.getMonth() + 1,
@@ -39,17 +37,19 @@ function ensureCurrentMonth(loaded: AppData): AppData | null {
     fixedExpenses: [],
     transactions: [],
   }
-  return { months: { ...loaded.months, [key]: newProfile }, activeMonthKey: key }
+  return { ...profile, months: { ...profile.months, [key]: newMonth }, activeMonthKey: key }
 }
 
-export default function App() {
-  const [data, setData] = useState<AppData>(() => {
-    const loaded = loadData()
-    const updated = ensureCurrentMonth(loaded)
-    if (updated) { saveData(updated); return updated }
-    return loaded
-  })
+type AppScreen = 'welcome' | 'choose' | 'dashboard'
 
+export default function App() {
+  const [data, setData] = useState<AppData>(() => loadData())
+  const [screen, setScreen] = useState<AppScreen>(() =>
+    Object.keys(loadData().profiles).length === 0 ? 'welcome' : 'choose'
+  )
+  const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
+
+  // Modal / overlay states
   const [showSetup, setShowSetup] = useState(false)
   const [showAddTx, setShowAddTx] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
@@ -57,109 +57,218 @@ export default function App() {
   const [showEditSalary, setShowEditSalary] = useState(false)
   const [showEditSavings, setShowEditSavings] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [showCreateProfile, setShowCreateProfile] = useState(false)
+  const [pendingProfileName, setPendingProfileName] = useState('')
 
   const now = new Date()
   const setupYear = now.getFullYear()
   const setupMonth = now.getMonth() + 1
 
-  const activeProfile =
-    data.activeMonthKey && data.months[data.activeMonthKey]
-      ? data.months[data.activeMonthKey]
-      : null
+  const activeProfile = activeProfileId ? (data.profiles[activeProfileId] ?? null) : null
+  const activeMonthProfile = activeProfile
+    ? (activeProfile.activeMonthKey ? (activeProfile.months[activeProfile.activeMonthKey] ?? null) : null)
+    : null
 
   const update = useCallback((next: AppData) => {
     setData(next)
     saveData(next)
   }, [])
 
-  // Re-render at midnight; also auto-create new month profile if needed
-  useEffect(() => {
-    const n = new Date()
-    const tomorrow = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1)
-    const ms = tomorrow.getTime() - n.getTime()
-    const id = setTimeout(() => {
-      setData(d => {
-        const updated = ensureCurrentMonth(d)
-        if (updated) { saveData(updated); return updated }
-        return { ...d }
-      })
-    }, ms)
-    return () => clearTimeout(id)
-  }, [])
+  function updateActiveProfile(fn: (p: Profile) => Profile) {
+    if (!activeProfileId || !activeProfile) return
+    const updated = fn(activeProfile)
+    update({ ...data, profiles: { ...data.profiles, [activeProfileId]: updated } })
+  }
 
-  function handleSaveProfile(profile: MonthProfile) {
-    const existing = data.months[profile.key]
-    const finalProfile: MonthProfile = {
-      ...profile,
-      transactions: existing?.transactions ?? [],
+  // Select profile → run ensureCurrentMonth → go to dashboard
+  function handleSelectProfile(profileId: string) {
+    const profile = data.profiles[profileId]
+    if (!profile) return
+    const updated = ensureCurrentMonthInProfile(profile)
+    if (updated) {
+      update({ ...data, profiles: { ...data.profiles, [profileId]: updated } })
     }
-    update({
-      months: { ...data.months, [profile.key]: finalProfile },
-      activeMonthKey: profile.key,
-    })
+    setActiveProfileId(profileId)
+    setScreen('dashboard')
+  }
+
+  // "Start Saving" or "Create new profile" → open name modal
+  function handleStartCreateProfile() {
+    setPendingProfileName('')
+    setShowCreateProfile(true)
+  }
+
+  // Name confirmed → open setup modal
+  function handleConfirmCreateProfile(name: string) {
+    setPendingProfileName(name)
+    setShowCreateProfile(false)
+    setShowSetup(true)
+  }
+
+  // Setup saved — either creates a new profile OR updates existing month
+  function handleSaveProfile(monthProfile: MonthProfile) {
+    if (pendingProfileName) {
+      // Creating a brand new profile
+      const profileId = genId()
+      const newProfile: Profile = {
+        id: profileId,
+        name: pendingProfileName,
+        months: { [monthProfile.key]: monthProfile },
+        activeMonthKey: monthProfile.key,
+      }
+      update({ profiles: { ...data.profiles, [profileId]: newProfile } })
+      setPendingProfileName('')
+      setActiveProfileId(profileId)
+      setScreen('dashboard')
+    } else {
+      // Updating an existing profile's month
+      if (!activeProfile) return
+      const existing = activeProfile.months[monthProfile.key]
+      const finalMonth: MonthProfile = {
+        ...monthProfile,
+        transactions: existing?.transactions ?? [],
+      }
+      updateActiveProfile(p => ({
+        ...p,
+        months: { ...p.months, [finalMonth.key]: finalMonth },
+        activeMonthKey: finalMonth.key,
+      }))
+    }
     setShowSetup(false)
   }
 
   function handleAddTx(tx: Omit<Transaction, 'id'>) {
-    if (!activeProfile) return
+    if (!activeMonthProfile) return
     const newTx: Transaction = { ...tx, id: genId() }
-    const updated: MonthProfile = {
-      ...activeProfile,
-      transactions: [...activeProfile.transactions, newTx],
-    }
-    update({ ...data, months: { ...data.months, [activeProfile.key]: updated } })
+    updateActiveProfile(p => ({
+      ...p,
+      months: {
+        ...p.months,
+        [activeMonthProfile.key]: {
+          ...activeMonthProfile,
+          transactions: [...activeMonthProfile.transactions, newTx],
+        },
+      },
+    }))
     setShowAddTx(false)
   }
 
   function handleDeleteTx(id: string) {
-    if (!activeProfile) return
-    const updated: MonthProfile = {
-      ...activeProfile,
-      transactions: activeProfile.transactions.filter(t => t.id !== id),
-    }
-    update({ ...data, months: { ...data.months, [activeProfile.key]: updated } })
+    if (!activeMonthProfile) return
+    updateActiveProfile(p => ({
+      ...p,
+      months: {
+        ...p.months,
+        [activeMonthProfile.key]: {
+          ...activeMonthProfile,
+          transactions: activeMonthProfile.transactions.filter(t => t.id !== id),
+        },
+      },
+    }))
   }
 
   function handleAddTxToMonth(monthKey: string, tx: Omit<Transaction, 'id'>) {
-    const profile = data.months[monthKey]
-    if (!profile) return
+    if (!activeProfile) return
+    const month = activeProfile.months[monthKey]
+    if (!month) return
     const newTx: Transaction = { ...tx, id: genId() }
-    const updated: MonthProfile = { ...profile, transactions: [...profile.transactions, newTx] }
-    update({ ...data, months: { ...data.months, [monthKey]: updated } })
+    updateActiveProfile(p => ({
+      ...p,
+      months: {
+        ...p.months,
+        [monthKey]: { ...month, transactions: [...month.transactions, newTx] },
+      },
+    }))
   }
 
   function handleUpdateSalary(salary: number, fixedExpenses: FixedExpense[]) {
-    if (!activeProfile) return
-    const updated: MonthProfile = { ...activeProfile, salary, fixedExpenses }
-    update({ ...data, months: { ...data.months, [activeProfile.key]: updated } })
+    if (!activeMonthProfile) return
+    updateActiveProfile(p => ({
+      ...p,
+      months: {
+        ...p.months,
+        [activeMonthProfile.key]: { ...activeMonthProfile, salary, fixedExpenses },
+      },
+    }))
     setShowEditSalary(false)
   }
 
   function handleUpdateSavings(savingsGoal: number) {
-    if (!activeProfile) return
-    const updated: MonthProfile = { ...activeProfile, savingsGoal }
-    update({ ...data, months: { ...data.months, [activeProfile.key]: updated } })
+    if (!activeMonthProfile) return
+    updateActiveProfile(p => ({
+      ...p,
+      months: {
+        ...p.months,
+        [activeMonthProfile.key]: { ...activeMonthProfile, savingsGoal },
+      },
+    }))
     setShowEditSavings(false)
   }
 
   function handleCurrentMonth() {
+    if (!activeProfile) return
     const key = curKey()
-    if (data.months[key]) {
-      update({ ...data, activeMonthKey: key })
+    if (activeProfile.months[key]) {
+      updateActiveProfile(p => ({ ...p, activeMonthKey: key }))
     } else {
+      setPendingProfileName('')
       setShowSetup(true)
     }
     setMenuOpen(false)
   }
 
+  function handleRenameProfile(profileId: string, newName: string) {
+    const profile = data.profiles[profileId]
+    if (!profile) return
+    update({ ...data, profiles: { ...data.profiles, [profileId]: { ...profile, name: newName } } })
+  }
+
+  function handleChangeProfile() {
+    setScreen('choose')
+    setActiveProfileId(null)
+    setMenuOpen(false)
+    setShowHistory(false)
+  }
+
+  // Auto-create new month at midnight for active profile
+  useEffect(() => {
+    const n = new Date()
+    const tomorrow = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1)
+    const ms = tomorrow.getTime() - n.getTime()
+    const id = setTimeout(() => {
+      if (!activeProfileId) return
+      setData(d => {
+        const profile = d.profiles[activeProfileId]
+        if (!profile) return d
+        const updated = ensureCurrentMonthInProfile(profile)
+        if (!updated) return { ...d }
+        const next = { ...d, profiles: { ...d.profiles, [activeProfileId]: updated } }
+        saveData(next)
+        return next
+      })
+    }, ms)
+    return () => clearTimeout(id)
+  }, [activeProfileId])
+
   return (
     <div className="h-dvh w-full bg-[#0a0a0a] overflow-hidden relative">
 
-      {!activeProfile ? (
-        <WelcomeScreen onStart={() => setShowSetup(true)} />
-      ) : (
+      {screen === 'welcome' && (
+        <WelcomeScreen onStart={handleStartCreateProfile} />
+      )}
+
+      {screen === 'choose' && (
+        <ChooseProfileScreen
+          profiles={data.profiles}
+          onSelect={handleSelectProfile}
+          onCreateNew={handleStartCreateProfile}
+          onRename={handleRenameProfile}
+        />
+      )}
+
+      {screen === 'dashboard' && activeMonthProfile && (
         <Dashboard
-          profile={activeProfile}
+          profile={activeMonthProfile}
           onAddTx={() => setShowAddTx(true)}
           onDeleteTx={handleDeleteTx}
           onEditSalary={() => setShowEditSalary(true)}
@@ -177,24 +286,34 @@ export default function App() {
           onClick={() => setMenuOpen(false)}
         >
           <div
-            className="absolute top-0 left-0 h-full w-60 bg-[#0f0f0f] pt-safe"
+            className="absolute top-0 left-0 h-full w-60 bg-[#0f0f0f] flex flex-col"
+            style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="px-4 pt-14 pb-6 space-y-1">
+            <div className="px-4 pt-14 pb-6 space-y-1 flex-1">
               <MenuRow label="Current Month" onClick={handleCurrentMonth} />
               <MenuRow label="History" onClick={() => { setShowHistory(true); setMenuOpen(false) }} />
+            </div>
+            <div className="px-4 pb-6">
+              <MenuRow label="Change Profile" onClick={handleChangeProfile} />
             </div>
           </div>
         </div>
       )}
 
+      <CreateProfileModal
+        isOpen={showCreateProfile}
+        onConfirm={handleConfirmCreateProfile}
+        onClose={() => setShowCreateProfile(false)}
+      />
+
       <SetupModal
         isOpen={showSetup}
         year={setupYear}
         month={setupMonth}
-        existingTransactions={data.months[curKey()]?.transactions ?? []}
+        existingTransactions={activeProfile?.months[curKey()]?.transactions ?? []}
         onSave={handleSaveProfile}
-        onClose={() => setShowSetup(false)}
+        onClose={() => { setShowSetup(false); setPendingProfileName('') }}
       />
 
       <AddTxModal
@@ -205,7 +324,7 @@ export default function App() {
 
       <HistoryView
         isOpen={showHistory}
-        months={data.months}
+        months={activeProfile?.months ?? {}}
         onAddTxToMonth={handleAddTxToMonth}
         onClose={() => setShowHistory(false)}
       />
@@ -217,15 +336,15 @@ export default function App() {
 
       <EditSalaryModal
         isOpen={showEditSalary}
-        currentSalary={activeProfile?.salary ?? 0}
-        currentFixed={activeProfile?.fixedExpenses ?? []}
+        currentSalary={activeMonthProfile?.salary ?? 0}
+        currentFixed={activeMonthProfile?.fixedExpenses ?? []}
         onSave={handleUpdateSalary}
         onClose={() => setShowEditSalary(false)}
       />
 
       <EditSavingsModal
         isOpen={showEditSavings}
-        currentGoal={activeProfile?.savingsGoal ?? 0}
+        currentGoal={activeMonthProfile?.savingsGoal ?? 0}
         onSave={handleUpdateSavings}
         onClose={() => setShowEditSavings(false)}
       />
