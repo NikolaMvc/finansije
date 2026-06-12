@@ -59,94 +59,106 @@ export default function SetupModal({ isOpen, year, month, existingTransactions, 
 
   return (
     <div
-      className="absolute inset-0 z-40 bg-[#0a0a0a] flex flex-col overflow-hidden animate-slide-in-right"
-      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="absolute inset-0 z-40 flex flex-col overflow-hidden animate-slide-in-right"
+      style={{
+        background: 'var(--bg-gradient)',
+        backgroundColor: 'var(--bg-solid)',
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+      }}
     >
-      {/* Header */}
-      <div className="flex-none flex items-center justify-between px-5 py-3 border-b border-white/5">
+      <div className="flex-none flex items-center justify-between px-5 py-3 border-b" style={{ borderColor: 'var(--surface-border)' }}>
         <button
           onClick={onClose}
-          className="text-gray-500 text-sm active:text-gray-300 transition-colors"
+          className="text-sm active:opacity-60 transition-opacity"
+          style={{ color: 'var(--text-secondary)' }}
         >
           Cancel
         </button>
-        <span className="text-white text-sm font-semibold">
+        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
           {MONTH_NAMES[month - 1]} {year}
         </span>
         <button
           onClick={handleSave}
-          className="text-[#42d392] text-sm font-semibold active:opacity-60 transition-opacity"
+          className="text-sm font-semibold active:opacity-60 transition-opacity"
+          style={{ color: 'var(--clr-green)' }}
         >
           Save
         </button>
       </div>
 
-      {/* Scrollable form */}
       <div className="flex-1 overflow-y-auto scrollbar-none px-5 py-5 space-y-6">
-
-        {/* Salary */}
         <div>
-          <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold mb-2">Monthly Salary</p>
-          <div className="bg-[#111] rounded-2xl px-4 py-3.5 flex items-center gap-2">
-            <span className="text-[#4db8e8] font-medium">€</span>
+          <p className="text-[10px] uppercase tracking-[0.12em] font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+            Monthly Salary
+          </p>
+          <div className="rounded-2xl px-4 py-3.5 flex items-center gap-2" style={{ backgroundColor: 'var(--surface)' }}>
+            <span className="font-medium" style={{ color: 'var(--clr-blue)' }}>€</span>
             <input
               type="number"
               inputMode="decimal"
               value={salary}
               onChange={e => setSalary(e.target.value)}
               placeholder="0.00"
-              className="flex-1 bg-transparent text-white text-lg outline-none placeholder:text-gray-700"
+              className="flex-1 bg-transparent text-lg outline-none placeholder:text-gray-500"
+              style={{ color: 'var(--text-primary)' }}
               autoFocus
             />
           </div>
         </div>
 
-        {/* Savings Goal */}
         <div>
-          <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold mb-2">Savings Goal</p>
-          <div className="bg-[#111] rounded-2xl px-4 py-3.5 flex items-center gap-2">
-            <span className="text-[#42d392] font-medium">€</span>
+          <p className="text-[10px] uppercase tracking-[0.12em] font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+            Savings Goal
+          </p>
+          <div className="rounded-2xl px-4 py-3.5 flex items-center gap-2" style={{ backgroundColor: 'var(--surface)' }}>
+            <span className="font-medium" style={{ color: 'var(--clr-green)' }}>€</span>
             <input
               type="number"
               inputMode="decimal"
               value={savingsGoal}
               onChange={e => setSavingsGoal(e.target.value)}
               placeholder="0.00"
-              className="flex-1 bg-transparent text-white text-lg outline-none placeholder:text-gray-700"
+              className="flex-1 bg-transparent text-lg outline-none placeholder:text-gray-500"
+              style={{ color: 'var(--text-primary)' }}
             />
           </div>
         </div>
 
-        {/* Fixed Expenses */}
         <div>
-          <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold mb-2">Fixed Expenses</p>
+          <p className="text-[10px] uppercase tracking-[0.12em] font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+            Fixed Expenses
+          </p>
           <div className="space-y-2">
             {fixedRows.map((row, i) => (
               <div key={i} className="flex gap-2 items-center">
-                <div className="bg-[#111] rounded-2xl px-3 py-3 flex items-center gap-1 w-28 flex-shrink-0">
-                  <span className="text-gray-600 text-sm">€</span>
+                <div className="rounded-2xl px-3 py-3 flex items-center gap-1 w-28 flex-shrink-0" style={{ backgroundColor: 'var(--surface)' }}>
+                  <span className="text-sm" style={{ color: 'var(--text-muted)' }}>€</span>
                   <input
                     type="number"
                     inputMode="decimal"
                     value={row.amount}
                     onChange={e => updateRow(i, 'amount', e.target.value)}
                     placeholder="0"
-                    className="w-full bg-transparent text-white text-sm outline-none placeholder:text-gray-700"
+                    className="w-full bg-transparent text-sm outline-none placeholder:text-gray-500"
+                    style={{ color: 'var(--text-primary)' }}
                   />
                 </div>
-                <div className="bg-[#111] rounded-2xl px-3 py-3 flex-1">
+                <div className="rounded-2xl px-3 py-3 flex-1" style={{ backgroundColor: 'var(--surface)' }}>
                   <input
                     type="text"
                     value={row.description}
                     onChange={e => updateRow(i, 'description', e.target.value)}
                     placeholder="Description"
-                    className="w-full bg-transparent text-white text-sm outline-none placeholder:text-gray-700"
+                    className="w-full bg-transparent text-sm outline-none placeholder:text-gray-500"
+                    style={{ color: 'var(--text-primary)' }}
                   />
                 </div>
                 {fixedRows.length > 1 && (
                   <button
                     onClick={() => removeRow(i)}
-                    className="text-gray-700 text-xl w-7 flex-shrink-0 flex items-center justify-center active:text-gray-400"
+                    className="text-xl w-7 flex-shrink-0 flex items-center justify-center active:opacity-60"
+                    style={{ color: 'var(--text-faint)' }}
                   >
                     ×
                   </button>
@@ -155,7 +167,8 @@ export default function SetupModal({ isOpen, year, month, existingTransactions, 
             ))}
             <button
               onClick={() => setFixedRows(prev => [...prev, { amount: '', description: '' }])}
-              className="flex items-center gap-1.5 text-[#42d392] text-sm py-1 active:opacity-60"
+              className="flex items-center gap-1.5 text-sm py-1 active:opacity-60"
+              style={{ color: 'var(--clr-green)' }}
             >
               <span className="text-lg leading-none">+</span>
               <span>Add row</span>
@@ -167,7 +180,8 @@ export default function SetupModal({ isOpen, year, month, existingTransactions, 
 
         <button
           onClick={handleSave}
-          className="w-full py-4 rounded-2xl bg-[#42d392] text-black font-bold text-base tracking-wide active:opacity-80 transition-opacity"
+          className="w-full py-4 rounded-2xl text-black font-bold text-base tracking-wide active:opacity-80 transition-opacity"
+          style={{ backgroundColor: 'var(--clr-green)' }}
         >
           START SAVING
         </button>

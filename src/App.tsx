@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { AppData, Profile, MonthProfile, Transaction, FixedExpense } from './types'
 import { loadData, saveData } from './utils/storage'
+import { useTheme } from './utils/useTheme'
 import Dashboard from './components/Dashboard'
 import SetupModal from './components/SetupModal'
 import AddTxModal from './components/AddTxModal'
@@ -52,6 +53,8 @@ export default function App() {
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
   const [direction, setDirection] = useState(1)
 
+  const { isLight, toggle: toggleTheme } = useTheme()
+
   // Modal / overlay states
   const [showSetup, setShowSetup] = useState(false)
   const [showAddTx, setShowAddTx] = useState(false)
@@ -83,7 +86,6 @@ export default function App() {
     update({ ...data, profiles: { ...data.profiles, [activeProfileId]: updated } })
   }
 
-  // Select profile → run ensureCurrentMonth → go to dashboard
   function handleSelectProfile(profileId: string) {
     const profile = data.profiles[profileId]
     if (!profile) return
@@ -96,23 +98,19 @@ export default function App() {
     setScreen('dashboard')
   }
 
-  // "Start Saving" or "Create new profile" → open name modal
   function handleStartCreateProfile() {
     setPendingProfileName('')
     setShowCreateProfile(true)
   }
 
-  // Name confirmed → open setup modal
   function handleConfirmCreateProfile(name: string) {
     setPendingProfileName(name)
     setShowCreateProfile(false)
     setShowSetup(true)
   }
 
-  // Setup saved — either creates a new profile OR updates existing month
   function handleSaveProfile(monthProfile: MonthProfile) {
     if (pendingProfileName) {
-      // Creating a brand new profile
       const profileId = genId()
       const newProfile: Profile = {
         id: profileId,
@@ -126,7 +124,6 @@ export default function App() {
       setActiveProfileId(profileId)
       setScreen('dashboard')
     } else {
-      // Updating an existing profile's month
       if (!activeProfile) return
       const existing = activeProfile.months[monthProfile.key]
       const finalMonth: MonthProfile = {
@@ -246,7 +243,6 @@ export default function App() {
     setShowHistory(false)
   }
 
-  // Auto-create new month at midnight for active profile
   useEffect(() => {
     const n = new Date()
     const tomorrow = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1)
@@ -324,7 +320,7 @@ export default function App() {
           animate={{ opacity: menuOpen ? 1 : 0 }}
           transition={{ duration: 0.2 }}
           className="absolute inset-0"
-          style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}
+          style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
         />
         <motion.div
           initial={{ x: '-100%' }}
@@ -333,8 +329,8 @@ export default function App() {
           className="absolute top-0 left-0 h-full w-60 flex flex-col"
           style={{
             willChange: 'transform',
-            background: 'linear-gradient(160deg, #0c1520 0%, #101318 40%, #0e0e0e 100%)',
-            borderRight: '1px solid rgba(56,189,248,0.07)',
+            background: 'var(--menu-bg)',
+            borderRight: '1px solid var(--menu-border)',
             paddingTop: 'env(safe-area-inset-top)',
             paddingBottom: 'env(safe-area-inset-bottom)',
           }}
@@ -344,8 +340,18 @@ export default function App() {
             <MenuRow label="Current Month" onClick={handleCurrentMonth} />
             <MenuRow label="History" onClick={() => { setShowHistory(true); setMenuOpen(false) }} />
           </div>
-          <div className="px-4 pb-6">
+          <div className="px-4 pb-2">
             <MenuRow label="Change Profile" onClick={handleChangeProfile} />
+          </div>
+          <div className="px-4 pb-6">
+            <button
+              onClick={toggleTheme}
+              className="w-full text-left py-3 px-4 rounded-2xl text-sm flex items-center gap-3 active:opacity-60 transition-opacity"
+              style={{ backgroundColor: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
+            >
+              <span>{isLight ? '🌙' : '☀️'}</span>
+              <span>{isLight ? 'Dark mode' : 'Light mode'}</span>
+            </button>
           </div>
         </motion.div>
       </div>
@@ -408,13 +414,15 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
       style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="text-center mb-10">
-        <h1 className="text-[38px] font-bold text-white tracking-tight leading-none mb-3">Finansije</h1>
-        <p className="text-gray-600 text-sm">Track spending. Hit your savings goal.</p>
+        <h1 className="text-[38px] font-bold tracking-tight leading-none mb-3" style={{ color: 'var(--text-primary)' }}>
+          Finansije
+        </h1>
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Track spending. Hit your savings goal.</p>
       </div>
       <button
         onClick={onStart}
         className="w-full py-4 rounded-[20px] text-black font-bold text-base tracking-wide active:opacity-80 transition-opacity"
-        style={{ backgroundColor: '#34d399', boxShadow: '0 0 28px rgba(52,211,153,0.35)' }}
+        style={{ backgroundColor: 'var(--clr-green)', boxShadow: '0 0 28px rgba(52,211,153,0.25)' }}
       >
         START SAVING
       </button>
@@ -426,7 +434,8 @@ function MenuRow({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-full text-left py-3.5 px-4 rounded-2xl text-white text-sm font-medium active:bg-white/5 transition-colors"
+      className="w-full text-left py-3.5 px-4 rounded-2xl text-sm font-medium active:opacity-60 transition-opacity"
+      style={{ color: 'var(--text-primary)' }}
     >
       {label}
     </button>

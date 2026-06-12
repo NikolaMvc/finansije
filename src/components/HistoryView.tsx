@@ -109,18 +109,19 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
     <div
       className="absolute inset-0 z-40 flex flex-col overflow-hidden animate-slide-in-right"
       style={{
-        background: 'radial-gradient(ellipse at 50% 0%, #0d1520 0%, #0a0a0a 55%, #080808 100%)',
+        background: 'var(--bg-gradient)',
+        backgroundColor: 'var(--bg-solid)',
         paddingTop: 'env(safe-area-inset-top)',
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
       {/* Header */}
-      <div className="flex-none flex items-center justify-between px-5 py-3 border-b border-white/5">
-        <button onClick={onClose} className="text-gray-500 text-sm flex items-center gap-1 active:text-gray-300">
+      <div className="flex-none flex items-center justify-between px-5 py-3 border-b" style={{ borderColor: 'var(--surface-border)' }}>
+        <button onClick={onClose} className="text-sm flex items-center gap-1 active:opacity-60" style={{ color: 'var(--text-secondary)' }}>
           <span>←</span>
           <span>Back</span>
         </button>
-        <span className="text-white text-sm font-semibold">History</span>
+        <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>History</span>
         <div className="w-16" />
       </div>
 
@@ -133,7 +134,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
         >
           ‹
         </button>
-        <span className="text-white font-semibold text-base">
+        <span className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>
           {MONTH_NAMES[viewMonth - 1]} {viewYear}
         </span>
         <button
@@ -151,10 +152,10 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
           {/* Spent */}
           <div
             className="rounded-2xl px-2 py-2 text-center"
-            style={{ background: 'linear-gradient(150deg, #1e0808, #2c0e0e)', boxShadow: '0 0 18px rgba(248,113,113,0.1)' }}
+            style={{ background: 'var(--card-red)', boxShadow: 'var(--card-red-shadow)' }}
           >
-            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Spent</div>
-            <div className="text-sm font-bold" style={{ color: '#f87171' }}>
+            <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Spent</div>
+            <div className="text-sm font-bold" style={{ color: 'var(--clr-red)' }}>
               €{(getSpentSoFar(profile!) + fixedTotal(profile!)).toFixed(0)}
             </div>
           </div>
@@ -162,10 +163,10 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
           {/* Salary */}
           <div
             className="rounded-2xl px-2 py-2 text-center"
-            style={{ background: 'linear-gradient(150deg, #001020, #001a35)', boxShadow: '0 0 18px rgba(56,189,248,0.1)' }}
+            style={{ background: 'var(--card-blue)', boxShadow: 'var(--card-blue-shadow)' }}
           >
-            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Salary</div>
-            <div className="text-sm font-bold" style={{ color: '#38bdf8' }}>
+            <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Salary</div>
+            <div className="text-sm font-bold" style={{ color: 'var(--clr-blue)' }}>
               €{profile!.salary.toFixed(0)}
             </div>
           </div>
@@ -174,14 +175,14 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
           <div
             className="rounded-2xl px-2 py-2 text-center"
             style={goalMet
-              ? { background: 'linear-gradient(150deg, #001a12, #002b1d)', boxShadow: '0 0 18px rgba(52,211,153,0.1)' }
-              : { background: 'linear-gradient(150deg, #1e0808, #2c0e0e)', boxShadow: '0 0 18px rgba(248,113,113,0.1)' }
+              ? { background: 'var(--card-green)', boxShadow: 'var(--card-green-shadow)' }
+              : { background: 'var(--card-red)', boxShadow: 'var(--card-red-shadow)' }
             }
           >
-            <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Saved</div>
+            <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Saved</div>
             <div
               className="text-sm font-bold leading-tight"
-              style={goalMet ? { color: '#34d399' } : { color: '#f87171' }}
+              style={goalMet ? { color: 'var(--clr-green)' } : { color: 'var(--clr-red)' }}
             >
               €{actualSaved.toFixed(0)}
             </div>
@@ -211,12 +212,12 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
           const isToday = now.getDate() === day && now.getMonth() + 1 === viewMonth && now.getFullYear() === viewYear
 
           const dayStyle = net === null
-            ? { backgroundColor: 'rgba(255,255,255,0.05)' }
+            ? { background: 'var(--cal-neutral-bg)' }
             : net >= 0
-              ? { background: 'linear-gradient(150deg, #001a12, #002b1d)' }
-              : { background: 'linear-gradient(150deg, #1e0808, #2c0e0e)' }
+              ? { background: 'var(--card-green)' }
+              : { background: 'var(--card-red)' }
 
-          const dayColor = net === null ? '#374151' : net >= 0 ? '#34d399' : '#f87171'
+          const dayColor = net === null ? 'var(--cal-neutral-text)' : net >= 0 ? 'var(--clr-green)' : 'var(--clr-red)'
 
           return (
             <button
@@ -240,7 +241,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
       {selectedDay && (
         <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none mt-3 px-5">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-[10px] text-gray-600 uppercase tracking-widest font-semibold">
+            <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'var(--text-muted)' }}>
               {selectedDay} {MON_SHORT[viewMonth - 1]}
             </p>
             {profile && !addingTx && (
@@ -255,7 +256,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
           </div>
 
           {selTxs.length === 0 && !addingTx && (
-            <p className="text-gray-700 text-sm text-center py-4">No transactions</p>
+            <p className="text-sm text-center py-4" style={{ color: 'var(--text-faint)' }}>No transactions</p>
           )}
           {selTxs.length > 0 && (
             <div className="space-y-px mb-3">
@@ -263,25 +264,25 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                 <div key={tx.id} className="flex items-center py-2.5 border-b border-white/5">
                   <span
                     className="text-sm font-semibold w-20 flex-shrink-0"
-                    style={{ color: tx.type === 'expense' ? '#f87171' : '#34d399' }}
+                    style={{ color: tx.type === 'expense' ? 'var(--clr-red)' : 'var(--clr-green)' }}
                   >
                     {tx.type === 'expense' ? '-' : '+'}€{Math.abs(tx.amount).toFixed(2)}
                   </span>
-                  <span className="text-sm text-white flex-1">{tx.description}</span>
+                  <span className="text-sm flex-1" style={{ color: 'var(--text-primary)' }}>{tx.description}</span>
                 </div>
               ))}
             </div>
           )}
 
           {addingTx && (
-            <div className="bg-[#111] rounded-2xl p-4 mt-2 space-y-3">
+            <div className="rounded-2xl p-4 mt-2 space-y-3" style={{ backgroundColor: 'var(--surface)' }}>
               <div className="flex gap-2">
                 <button
                   onClick={() => setAddType('expense')}
                   className="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
                   style={addType === 'expense'
-                    ? { background: 'linear-gradient(150deg,#1e0808,#2c0e0e)', color: '#f87171' }
-                    : { backgroundColor: 'rgba(255,255,255,0.05)', color: '#4b5563' }
+                    ? { background: 'var(--card-red)', color: 'var(--clr-red)' }
+                    : { background: 'var(--cal-neutral-bg)', color: '#4b5563' }
                   }
                 >
                   Expense
@@ -290,16 +291,16 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                   onClick={() => setAddType('income')}
                   className="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
                   style={addType === 'income'
-                    ? { background: 'linear-gradient(150deg,#001a12,#002b1d)', color: '#34d399' }
-                    : { backgroundColor: 'rgba(255,255,255,0.05)', color: '#4b5563' }
+                    ? { background: 'var(--card-green)', color: 'var(--clr-green)' }
+                    : { background: 'var(--cal-neutral-bg)', color: '#4b5563' }
                   }
                 >
                   Income
                 </button>
               </div>
 
-              <div className="bg-[#1a1a1a] rounded-xl px-3 py-2.5 flex items-center gap-2">
-                <span className="text-sm font-medium" style={{ color: addType === 'expense' ? '#f87171' : '#34d399' }}>€</span>
+              <div className="rounded-xl px-3 py-2.5 flex items-center gap-2" style={{ backgroundColor: 'var(--surface-input)' }}>
+                <span className="text-sm font-medium" style={{ color: addType === 'expense' ? 'var(--clr-red)' : 'var(--clr-green)' }}>€</span>
                 <input
                   type="number"
                   inputMode="decimal"
@@ -311,7 +312,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                 />
               </div>
 
-              <div className="bg-[#1a1a1a] rounded-xl px-3 py-2.5">
+              <div className="rounded-xl px-3 py-2.5" style={{ backgroundColor: 'var(--surface-input)' }}>
                 <input
                   type="text"
                   value={addDesc}
@@ -325,7 +326,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
               <div className="flex gap-2">
                 <button
                   onClick={() => { setAddingTx(false); setAddAmount(''); setAddDesc('') }}
-                  className="flex-1 py-2.5 rounded-xl bg-white/5 text-gray-500 text-sm font-medium active:opacity-60"
+                  className="flex-1 py-2.5 rounded-xl text-sm font-medium active:opacity-60" style={{ backgroundColor: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
                 >
                   Cancel
                 </button>
@@ -333,8 +334,8 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                   onClick={submitAdd}
                   className="flex-1 py-2.5 rounded-xl text-sm font-semibold active:opacity-70"
                   style={addType === 'expense'
-                    ? { background: 'linear-gradient(150deg,#1e0808,#2c0e0e)', color: '#f87171' }
-                    : { background: 'linear-gradient(150deg,#001a12,#002b1d)', color: '#34d399' }
+                    ? { background: 'var(--card-red)', color: 'var(--clr-red)' }
+                    : { background: 'var(--card-green)', color: 'var(--clr-green)' }
                   }
                 >
                   Add

@@ -50,65 +50,72 @@ export default function EditSalaryModal({ isOpen, currentSalary, currentFixed, o
     <>
       <div className="absolute inset-0 z-40 bg-black/60 animate-fade-in" onClick={onClose} />
       <div
-        className="absolute left-0 right-0 z-50 bg-[#111] rounded-t-[28px] animate-slide-up overflow-hidden flex flex-col"
+        className="absolute left-0 right-0 z-50 rounded-t-[28px] animate-slide-up overflow-hidden flex flex-col"
         style={{
+          backgroundColor: 'var(--surface)',
           bottom: keyboardOffset,
           paddingBottom: keyboardOffset > 0 ? '8px' : 'calc(env(safe-area-inset-bottom) + 8px)',
           maxHeight: `calc(100vh - ${keyboardOffset}px - 40px)`,
         }}
       >
         <div className="flex justify-center pt-3 pb-2 flex-none">
-          <div className="w-9 h-1 bg-white/15 rounded-full" />
+          <div className="w-9 h-1 rounded-full" style={{ backgroundColor: 'var(--surface-handle)' }} />
         </div>
 
         <div className="px-5 pb-4 space-y-5">
-          {/* Salary */}
           <div>
-            <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold mb-2">Monthly Salary</p>
-            <div className="bg-[#1a1a1a] rounded-2xl px-4 py-3.5 flex items-center gap-2">
-              <span className="text-[#4db8e8] font-medium">€</span>
+            <p className="text-[10px] uppercase tracking-[0.12em] font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+              Monthly Salary
+            </p>
+            <div className="rounded-2xl px-4 py-3.5 flex items-center gap-2" style={{ backgroundColor: 'var(--surface-input)' }}>
+              <span className="font-medium" style={{ color: 'var(--clr-blue)' }}>€</span>
               <input
                 type="number"
                 inputMode="decimal"
                 value={salary}
                 onChange={e => setSalary(e.target.value)}
                 placeholder="0.00"
-                className="flex-1 bg-transparent text-white text-lg outline-none placeholder:text-gray-700"
+                className="flex-1 bg-transparent text-lg outline-none placeholder:text-gray-500"
+                style={{ color: 'var(--text-primary)' }}
                 autoFocus
               />
             </div>
           </div>
 
-          {/* Fixed Expenses */}
           <div>
-            <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold mb-2">Fixed Expenses</p>
+            <p className="text-[10px] uppercase tracking-[0.12em] font-semibold mb-2" style={{ color: 'var(--text-secondary)' }}>
+              Fixed Expenses
+            </p>
             <div className="space-y-2">
               {rows.map((row, i) => (
                 <div key={i} className="flex gap-2 items-center">
-                  <div className="bg-[#1a1a1a] rounded-xl px-3 py-2.5 flex items-center gap-1 w-28 flex-shrink-0">
-                    <span className="text-gray-600 text-sm">€</span>
+                  <div className="rounded-xl px-3 py-2.5 flex items-center gap-1 w-28 flex-shrink-0" style={{ backgroundColor: 'var(--surface-input)' }}>
+                    <span className="text-sm" style={{ color: 'var(--text-muted)' }}>€</span>
                     <input
                       type="number"
                       inputMode="decimal"
                       value={row.amount}
                       onChange={e => updateRow(i, 'amount', e.target.value)}
                       placeholder="0"
-                      className="w-full bg-transparent text-white text-sm outline-none placeholder:text-gray-700"
+                      className="w-full bg-transparent text-sm outline-none placeholder:text-gray-500"
+                      style={{ color: 'var(--text-primary)' }}
                     />
                   </div>
-                  <div className="bg-[#1a1a1a] rounded-xl px-3 py-2.5 flex-1">
+                  <div className="rounded-xl px-3 py-2.5 flex-1" style={{ backgroundColor: 'var(--surface-input)' }}>
                     <input
                       type="text"
                       value={row.description}
                       onChange={e => updateRow(i, 'description', e.target.value)}
                       placeholder="Description"
-                      className="w-full bg-transparent text-white text-sm outline-none placeholder:text-gray-700"
+                      className="w-full bg-transparent text-sm outline-none placeholder:text-gray-500"
+                      style={{ color: 'var(--text-primary)' }}
                     />
                   </div>
                   {rows.length > 1 && (
                     <button
                       onClick={() => setRows(prev => prev.filter((_, idx) => idx !== i))}
-                      className="text-gray-700 text-xl w-7 flex-shrink-0 flex items-center justify-center active:text-gray-400"
+                      className="text-xl w-7 flex-shrink-0 flex items-center justify-center active:opacity-60"
+                      style={{ color: 'var(--text-faint)' }}
                     >
                       ×
                     </button>
@@ -117,7 +124,8 @@ export default function EditSalaryModal({ isOpen, currentSalary, currentFixed, o
               ))}
               <button
                 onClick={() => setRows(prev => [...prev, { amount: '', description: '' }])}
-                className="flex items-center gap-1.5 text-[#4db8e8] text-sm py-1 active:opacity-60"
+                className="flex items-center gap-1.5 text-sm py-1 active:opacity-60"
+                style={{ color: 'var(--clr-blue)' }}
               >
                 <span className="text-lg leading-none">+</span>
                 <span>Add row</span>
@@ -127,7 +135,8 @@ export default function EditSalaryModal({ isOpen, currentSalary, currentFixed, o
 
           <button
             onClick={handleSave}
-            className="w-full py-3.5 rounded-2xl bg-[#000f1a] text-[#4db8e8] font-semibold text-sm tracking-wide active:opacity-70"
+            className="w-full py-3.5 rounded-2xl text-sm font-semibold tracking-wide active:opacity-70"
+            style={{ background: 'var(--card-blue)', color: 'var(--clr-blue)' }}
           >
             Save
           </button>

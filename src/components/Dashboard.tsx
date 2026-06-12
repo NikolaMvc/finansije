@@ -12,24 +12,11 @@ const CARD = {
 }
 const SPRING = { type: 'spring' as const, stiffness: 380, damping: 18 }
 
-// Card gradient backgrounds + neon glow box-shadows
 const CS = {
-  yellow: {
-    background: 'linear-gradient(150deg, #1e1a00 0%, #2c2400 100%)',
-    boxShadow: '0 0 28px rgba(251,191,36,0.14), 0 4px 20px rgba(0,0,0,0.55)',
-  },
-  green: {
-    background: 'linear-gradient(150deg, #001a12 0%, #002b1d 100%)',
-    boxShadow: '0 0 28px rgba(52,211,153,0.12), 0 4px 20px rgba(0,0,0,0.55)',
-  },
-  blue: {
-    background: 'linear-gradient(150deg, #001020 0%, #001a35 100%)',
-    boxShadow: '0 0 28px rgba(56,189,248,0.12), 0 4px 20px rgba(0,0,0,0.55)',
-  },
-  red: {
-    background: 'linear-gradient(150deg, #1e0808 0%, #2c0e0e 100%)',
-    boxShadow: '0 0 28px rgba(248,113,113,0.14), 0 4px 20px rgba(0,0,0,0.55)',
-  },
+  yellow: { background: 'var(--card-yellow)', boxShadow: 'var(--card-yellow-shadow)' },
+  green:  { background: 'var(--card-green)',  boxShadow: 'var(--card-green-shadow)'  },
+  blue:   { background: 'var(--card-blue)',   boxShadow: 'var(--card-blue-shadow)'   },
+  red:    { background: 'var(--card-red)',    boxShadow: 'var(--card-red-shadow)'    },
 }
 
 
@@ -69,13 +56,13 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
   const net = incomeTotal(profile) - expensesTotal(profile)
 
   const remainingCS = remaining < 0 ? CS.red : CS.yellow
-  const remainingColor = remaining < 0 ? '#f87171' : '#fbbf24'
+  const remainingColor = remaining < 0 ? 'var(--clr-red)' : 'var(--clr-yellow)'
 
   const spentCS = net > 0 ? CS.green : net < 0 ? CS.red : CS.blue
-  const spentColor = net > 0 ? '#34d399' : net < 0 ? '#f87171' : '#38bdf8'
+  const spentColor = net > 0 ? 'var(--clr-green)' : net < 0 ? 'var(--clr-red)' : 'var(--clr-blue)'
 
   const todayCS = todayBudget > 0 ? CS.yellow : CS.red
-  const todayColor = todayBudget > 0 ? '#fbbf24' : '#f87171'
+  const todayColor = todayBudget > 0 ? 'var(--clr-yellow)' : 'var(--clr-red)'
 
   const animRemaining = useCountUp(Math.abs(remaining))
   const animSavings = useCountUp(profile.savingsGoal)
@@ -106,7 +93,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           <span className="w-[15px] h-[1.5px] bg-gray-500 rounded-full block" />
         </button>
 
-        <span className="text-gray-500 text-sm font-medium">
+        <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
           {MON_SHORT[profile.month - 1]} {profile.year}
         </span>
 
@@ -123,7 +110,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
       <div className="flex-none px-4 pb-3 flex gap-2.5">
         {/* Remaining */}
         <div className="flex-1">
-          <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">Remaining</p>
+          <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>Remaining</p>
           <motion.div
             {...CARD}
             transition={{ duration: 0.38, delay: 0.04, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -141,7 +128,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
 
         {/* Savings Goal */}
         <div className="flex-1">
-          <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">Savings</p>
+          <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>Savings</p>
           <motion.button
             {...CARD}
             transition={{ default: { duration: 0.38, delay: 0.10, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
@@ -151,11 +138,11 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
             style={CS.green}
           >
             {profile.savingsGoal === 0 ? (
-              <span className="text-[11px] font-semibold opacity-50 text-center leading-tight" style={{ color: '#34d399' }}>
+              <span className="text-[11px] font-semibold opacity-50 text-center leading-tight" style={{ color: 'var(--clr-green)' }}>
                 Add savings
               </span>
             ) : (
-              <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#34d399', }}>
+              <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: 'var(--clr-green)', }}>
                 €{fmt(animSavings, 0)}
               </span>
             )}
@@ -164,7 +151,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
 
         {/* Salary */}
         <div className="flex-1">
-          <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">Salary</p>
+          <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>Salary</p>
           <motion.button
             {...CARD}
             transition={{ default: { duration: 0.38, delay: 0.16, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
@@ -174,11 +161,11 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
             style={CS.blue}
           >
             {profile.salary === 0 ? (
-              <span className="text-[11px] font-semibold opacity-50 text-center leading-tight" style={{ color: '#38bdf8' }}>
+              <span className="text-[11px] font-semibold opacity-50 text-center leading-tight" style={{ color: 'var(--clr-blue)' }}>
                 Add salary
               </span>
             ) : (
-              <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#38bdf8', }}>
+              <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: 'var(--clr-blue)', }}>
                 €{fmt(animSalary, 0)}
               </span>
             )}
@@ -188,7 +175,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
 
       {/* Spent section */}
       <div className={`flex flex-col min-h-0 px-4 ${expanded ? 'flex-1' : 'flex-none'}`}>
-        <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">
+        <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>
           Spent So Far
         </p>
 
@@ -204,8 +191,8 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
             €{fmt(animNet)}
           </span>
           <span
-            className="text-gray-600 text-lg transition-transform duration-200"
-            style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}
+            className="text-lg transition-transform duration-200"
+            style={{ color: 'var(--text-muted)', transform: expanded ? 'rotate(180deg)' : 'none' }}
           >
             ▾
           </span>
@@ -214,24 +201,25 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
         {expanded && (
           <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none mt-2">
             {sortedTxs.length === 0 ? (
-              <p className="text-gray-700 text-sm text-center py-6">No transactions yet</p>
+              <p className="text-sm text-center py-6" style={{ color: 'var(--text-faint)' }}>No transactions yet</p>
             ) : (
               <div>
                 {sortedTxs.map(tx => (
-                  <div key={tx.id} className="flex items-center py-2.5 border-b border-white/5">
+                  <div key={tx.id} className="flex items-center py-2.5 border-b" style={{ borderColor: 'var(--surface-border)' }}>
                     <span
                       className="text-sm font-semibold w-[88px] flex-shrink-0 tabular-nums"
-                      style={{ color: tx.type === 'expense' ? '#f87171' : '#34d399' }}
+                      style={{ color: tx.type === 'expense' ? 'var(--clr-red)' : 'var(--clr-green)' }}
                     >
                       {tx.type === 'expense' ? '-' : '+'}€{Math.abs(tx.amount).toFixed(2)}
                     </span>
-                    <span className="text-sm text-white flex-1 truncate">{tx.description}</span>
-                    <span className="text-[11px] text-gray-600 flex-shrink-0 ml-2">
+                    <span className="text-sm flex-1 truncate" style={{ color: 'var(--text-primary)' }}>{tx.description}</span>
+                    <span className="text-[11px] flex-shrink-0 ml-2" style={{ color: 'var(--text-muted)' }}>
                       {fmtDate(tx.date)}
                     </span>
                     <button
                       onClick={e => { e.stopPropagation(); onDeleteTx(tx.id) }}
-                      className="ml-3 text-gray-600 text-base w-5 flex-shrink-0 flex items-center justify-center active:text-red-400 transition-colors"
+                      className="ml-3 text-base w-5 flex-shrink-0 flex items-center justify-center active:text-red-400 transition-colors"
+                      style={{ color: 'var(--text-muted)' }}
                       aria-label="Delete"
                     >
                       ×
@@ -253,15 +241,15 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           transition={{ duration: 0.38, delay: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="flex-1"
         >
-          <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">
+          <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>
             Daily Budget
           </p>
           <div className="rounded-[20px] px-4 py-5" style={CS.yellow}>
-            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#fbbf24', }}>
+            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: 'var(--clr-yellow)', }}>
               €{fmt(animDaily)}
             </span>
-            <span className="text-gray-600 text-xs ml-1">/day</span>
-            <p className="text-[11px] text-gray-600 mt-1.5 tabular-nums leading-none opacity-80">
+            <span className="text-xs ml-1" style={{ color: 'var(--text-muted)' }}>/day</span>
+            <p className="text-[11px] mt-1.5 tabular-nums leading-none opacity-80" style={{ color: 'var(--text-muted)' }}>
               €{fmt(animStartDaily)}/day
             </p>
           </div>
@@ -272,7 +260,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           transition={{ duration: 0.38, delay: 0.34, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="flex-1"
         >
-          <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">
+          <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>
             Today's Budget
           </p>
           <div className="rounded-[20px] px-4 py-5" style={todayCS}>
@@ -280,7 +268,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
               €{todayBudget > 0 ? fmt(animToday) : '0.00'}
             </span>
             {todayBudget <= 0 && (
-              <p className="text-[11px] opacity-60 mt-1.5 tabular-nums leading-none" style={{ color: '#f87171' }}>
+              <p className="text-[11px] opacity-60 mt-1.5 tabular-nums leading-none" style={{ color: 'var(--clr-red)' }}>
                 -€{fmt(animToday)}
               </p>
             )}

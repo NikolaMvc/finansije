@@ -26,28 +26,30 @@ export default function CreateProfileModal({ isOpen, onConfirm, onClose }: Props
     <>
       <div className="absolute inset-0 z-40 bg-black/70 animate-fade-in" onClick={onClose} />
       <div
-        className="absolute left-0 right-0 z-50 bg-[#111] rounded-t-[28px] animate-slide-up"
+        className="absolute left-0 right-0 z-50 rounded-t-[28px] animate-slide-up"
         style={{
+          backgroundColor: 'var(--surface)',
           bottom: keyboardOffset,
           paddingBottom: keyboardOffset > 0 ? '8px' : 'calc(env(safe-area-inset-bottom) + 8px)',
         }}
       >
         <div className="flex justify-center pt-3 pb-2">
-          <div className="w-9 h-1 bg-white/15 rounded-full" />
+          <div className="w-9 h-1 rounded-full" style={{ backgroundColor: 'var(--surface-handle)' }} />
         </div>
 
         <div className="px-5 pb-4 space-y-4">
-          <p className="text-[10px] text-gray-500 uppercase tracking-[0.12em] font-semibold">
+          <p className="text-[10px] uppercase tracking-[0.12em] font-semibold" style={{ color: 'var(--text-secondary)' }}>
             Profile Name
           </p>
 
-          <div className="bg-[#1a1a1a] rounded-2xl px-4 py-3.5">
+          <div className="rounded-2xl px-4 py-3.5" style={{ backgroundColor: 'var(--surface-input)' }}>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="e.g. Raiffeisen"
-              className="w-full bg-transparent text-white text-lg outline-none placeholder:text-gray-700"
+              className="w-full bg-transparent text-lg outline-none placeholder:text-gray-500"
+              style={{ color: 'var(--text-primary)' }}
               autoFocus
               onKeyDown={e => e.key === 'Enter' && handleConfirm()}
             />
@@ -56,13 +58,15 @@ export default function CreateProfileModal({ isOpen, onConfirm, onClose }: Props
           <div className="flex gap-2">
             <button
               onClick={onClose}
-              className="flex-1 py-3.5 rounded-2xl bg-white/5 text-gray-500 text-sm font-medium active:opacity-60"
+              className="flex-1 py-3.5 rounded-2xl text-sm font-medium active:opacity-60"
+              style={{ backgroundColor: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
             >
               Cancel
             </button>
             <button
               onClick={handleConfirm}
-              className="flex-1 py-3.5 rounded-2xl bg-[#001610] text-[#42d392] font-semibold text-sm active:opacity-70"
+              className="flex-1 py-3.5 rounded-2xl text-sm font-semibold active:opacity-70"
+              style={{ background: 'var(--card-green)', color: 'var(--clr-green)' }}
             >
               Continue
             </button>
