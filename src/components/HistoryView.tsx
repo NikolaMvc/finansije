@@ -22,7 +22,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1)
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
 
-  // Inline add form state
   const [addingTx, setAddingTx] = useState(false)
   const [addType, setAddType] = useState<'expense' | 'income'>('expense')
   const [addAmount, setAddAmount] = useState('')
@@ -31,7 +30,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   const key = `${viewYear}-${String(viewMonth).padStart(2, '0')}`
   const profile = months[key] ?? null
 
-  // Navigation bounds
   const sortedKeys = Object.keys(months).sort()
   const earliestKey = sortedKeys[0] ?? key
   const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -100,7 +98,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
 
   const selTxs = selectedDay ? dayTxs(selectedDay) : []
 
-  // Summary bar calculations
   const hasData = profile && profile.salary > 0
   const remaining = hasData ? getRemaining(profile) : 0
   const goalMet = hasData ? remaining >= 0 : null
@@ -110,8 +107,12 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
 
   return (
     <div
-      className="absolute inset-0 z-40 bg-[#0a0a0a] flex flex-col overflow-hidden animate-slide-in-right"
-      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="absolute inset-0 z-40 flex flex-col overflow-hidden animate-slide-in-right"
+      style={{
+        background: 'radial-gradient(ellipse at 50% 0%, #0d1520 0%, #0a0a0a 55%, #080808 100%)',
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+      }}
     >
       {/* Header */}
       <div className="flex-none flex items-center justify-between px-5 py-3 border-b border-white/5">
@@ -144,27 +145,47 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
         </button>
       </div>
 
-      {/* Summary bar — only when month has salary data */}
+      {/* Summary bar */}
       {hasData && (
         <div className="flex-none px-4 pb-3 grid grid-cols-3 gap-2">
           {/* Spent */}
-          <div className="bg-[#1c0808] rounded-2xl px-2 py-2 text-center">
+          <div
+            className="rounded-2xl px-2 py-2 text-center"
+            style={{ background: 'linear-gradient(150deg, #1e0808, #2c0e0e)', boxShadow: '0 0 18px rgba(248,113,113,0.1)' }}
+          >
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Spent</div>
-            <div className="text-sm font-bold text-[#e85c5c]">
+            <div className="text-sm font-bold" style={{ color: '#f87171', textShadow: '0 0 12px rgba(248,113,113,0.6)' }}>
               €{(getSpentSoFar(profile!) + fixedTotal(profile!)).toFixed(0)}
             </div>
           </div>
 
           {/* Salary */}
-          <div className="bg-[#000f1a] rounded-2xl px-2 py-2 text-center">
+          <div
+            className="rounded-2xl px-2 py-2 text-center"
+            style={{ background: 'linear-gradient(150deg, #001020, #001a35)', boxShadow: '0 0 18px rgba(56,189,248,0.1)' }}
+          >
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Salary</div>
-            <div className="text-sm font-bold text-[#4db8e8]">€{profile!.salary.toFixed(0)}</div>
+            <div className="text-sm font-bold" style={{ color: '#38bdf8', textShadow: '0 0 12px rgba(56,189,248,0.6)' }}>
+              €{profile!.salary.toFixed(0)}
+            </div>
           </div>
 
           {/* Saved */}
-          <div className={`rounded-2xl px-2 py-2 text-center ${goalMet ? 'bg-[#001610]' : 'bg-[#1c0808]'}`}>
+          <div
+            className="rounded-2xl px-2 py-2 text-center"
+            style={goalMet
+              ? { background: 'linear-gradient(150deg, #001a12, #002b1d)', boxShadow: '0 0 18px rgba(52,211,153,0.1)' }
+              : { background: 'linear-gradient(150deg, #1e0808, #2c0e0e)', boxShadow: '0 0 18px rgba(248,113,113,0.1)' }
+            }
+          >
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Saved</div>
-            <div className={`text-sm font-bold leading-tight ${goalMet ? 'text-[#42d392]' : 'text-[#e85c5c]'}`}>
+            <div
+              className="text-sm font-bold leading-tight"
+              style={goalMet
+                ? { color: '#34d399', textShadow: '0 0 12px rgba(52,211,153,0.6)' }
+                : { color: '#f87171', textShadow: '0 0 12px rgba(248,113,113,0.6)' }
+              }
+            >
               €{actualSaved.toFixed(0)}
             </div>
             {!goalMet && profile!.savingsGoal > 0 && (
@@ -192,19 +213,24 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
           const isSel = selectedDay === day
           const isToday = now.getDate() === day && now.getMonth() + 1 === viewMonth && now.getFullYear() === viewYear
 
+          const dayStyle = net === null
+            ? { backgroundColor: 'rgba(255,255,255,0.05)' }
+            : net >= 0
+              ? { background: 'linear-gradient(150deg, #001a12, #002b1d)' }
+              : { background: 'linear-gradient(150deg, #1e0808, #2c0e0e)' }
+
+          const dayColor = net === null ? '#374151' : net >= 0 ? '#34d399' : '#f87171'
+
           return (
             <button
               key={day}
               onClick={() => selectDay(day)}
-              className={`
-                aspect-square rounded-xl flex flex-col items-center justify-center transition-all
-                ${isSel ? 'ring-1 ring-white/40 scale-95' : ''}
-                ${net === null ? 'bg-white/5 text-gray-700' : net >= 0 ? 'bg-[#001610] text-[#42d392]' : 'bg-[#1c0808] text-[#e85c5c]'}
-              `}
+              className={`aspect-square rounded-xl flex flex-col items-center justify-center transition-all ${isSel ? 'ring-1 ring-white/40 scale-95' : ''}`}
+              style={dayStyle}
             >
-              <span className={`text-[11px] font-semibold ${isToday ? 'text-white' : ''}`}>{day}</span>
+              <span className="text-[11px] font-semibold" style={{ color: isToday ? '#ffffff' : dayColor }}>{day}</span>
               {net !== null && (
-                <span className="text-[8px] opacity-70 leading-tight">
+                <span className="text-[8px] opacity-70 leading-tight" style={{ color: dayColor }}>
                   {net >= 0 ? '+' : ''}{net.toFixed(0)}
                 </span>
               )}
@@ -216,8 +242,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
       {/* Selected day panel */}
       {selectedDay && (
         <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none mt-3 px-5">
-
-          {/* Day header with + button */}
           <div className="flex items-center justify-between mb-2">
             <p className="text-[10px] text-gray-600 uppercase tracking-widest font-semibold">
               {selectedDay} {MON_SHORT[viewMonth - 1]}
@@ -233,7 +257,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             )}
           </div>
 
-          {/* Transaction list */}
           {selTxs.length === 0 && !addingTx && (
             <p className="text-gray-700 text-sm text-center py-4">No transactions</p>
           )}
@@ -241,7 +264,10 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             <div className="space-y-px mb-3">
               {selTxs.map(tx => (
                 <div key={tx.id} className="flex items-center py-2.5 border-b border-white/5">
-                  <span className={`text-sm font-semibold w-20 flex-shrink-0 ${tx.type === 'expense' ? 'text-[#e85c5c]' : 'text-[#42d392]'}`}>
+                  <span
+                    className="text-sm font-semibold w-20 flex-shrink-0"
+                    style={{ color: tx.type === 'expense' ? '#f87171' : '#34d399' }}
+                  >
                     {tx.type === 'expense' ? '-' : '+'}€{Math.abs(tx.amount).toFixed(2)}
                   </span>
                   <span className="text-sm text-white flex-1">{tx.description}</span>
@@ -250,26 +276,33 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             </div>
           )}
 
-          {/* Inline add form */}
           {addingTx && (
             <div className="bg-[#111] rounded-2xl p-4 mt-2 space-y-3">
               <div className="flex gap-2">
                 <button
                   onClick={() => setAddType('expense')}
-                  className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-colors ${addType === 'expense' ? 'bg-[#1c0808] text-[#e85c5c]' : 'bg-white/5 text-gray-600'}`}
+                  className="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
+                  style={addType === 'expense'
+                    ? { background: 'linear-gradient(150deg,#1e0808,#2c0e0e)', color: '#f87171' }
+                    : { backgroundColor: 'rgba(255,255,255,0.05)', color: '#4b5563' }
+                  }
                 >
                   Expense
                 </button>
                 <button
                   onClick={() => setAddType('income')}
-                  className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-colors ${addType === 'income' ? 'bg-[#001610] text-[#42d392]' : 'bg-white/5 text-gray-600'}`}
+                  className="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
+                  style={addType === 'income'
+                    ? { background: 'linear-gradient(150deg,#001a12,#002b1d)', color: '#34d399' }
+                    : { backgroundColor: 'rgba(255,255,255,0.05)', color: '#4b5563' }
+                  }
                 >
                   Income
                 </button>
               </div>
 
               <div className="bg-[#1a1a1a] rounded-xl px-3 py-2.5 flex items-center gap-2">
-                <span className={`text-sm font-medium ${addType === 'expense' ? 'text-[#e85c5c]' : 'text-[#42d392]'}`}>€</span>
+                <span className="text-sm font-medium" style={{ color: addType === 'expense' ? '#f87171' : '#34d399' }}>€</span>
                 <input
                   type="number"
                   inputMode="decimal"
@@ -301,7 +334,11 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                 </button>
                 <button
                   onClick={submitAdd}
-                  className={`flex-1 py-2.5 rounded-xl text-sm font-semibold active:opacity-70 ${addType === 'expense' ? 'bg-[#1c0808] text-[#e85c5c]' : 'bg-[#001610] text-[#42d392]'}`}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold active:opacity-70"
+                  style={addType === 'expense'
+                    ? { background: 'linear-gradient(150deg,#1e0808,#2c0e0e)', color: '#f87171' }
+                    : { background: 'linear-gradient(150deg,#001a12,#002b1d)', color: '#34d399' }
+                  }
                 >
                   Add
                 </button>

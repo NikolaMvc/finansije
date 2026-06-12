@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import type { MonthProfile, Transaction } from '../types'
-import { getRemaining, getSpentSoFar, getDailyBudget, getTodayBudget, getStartDailyBudget, incomeTotal, expensesTotal } from '../utils/calc'
+import { getRemaining, getDailyBudget, getTodayBudget, getStartDailyBudget, incomeTotal, expensesTotal } from '../utils/calc'
 import { useCountUp } from '../utils/useCountUp'
 
 const MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -11,6 +11,34 @@ const CARD = {
   animate: { opacity: 1, y: 0 },
 }
 const SPRING = { type: 'spring' as const, stiffness: 380, damping: 18 }
+
+// Card gradient backgrounds + neon glow box-shadows
+const CS = {
+  yellow: {
+    background: 'linear-gradient(150deg, #1e1a00 0%, #2c2400 100%)',
+    boxShadow: '0 0 28px rgba(251,191,36,0.14), 0 4px 20px rgba(0,0,0,0.55)',
+  },
+  green: {
+    background: 'linear-gradient(150deg, #001a12 0%, #002b1d 100%)',
+    boxShadow: '0 0 28px rgba(52,211,153,0.12), 0 4px 20px rgba(0,0,0,0.55)',
+  },
+  blue: {
+    background: 'linear-gradient(150deg, #001020 0%, #001a35 100%)',
+    boxShadow: '0 0 28px rgba(56,189,248,0.12), 0 4px 20px rgba(0,0,0,0.55)',
+  },
+  red: {
+    background: 'linear-gradient(150deg, #1e0808 0%, #2c0e0e 100%)',
+    boxShadow: '0 0 28px rgba(248,113,113,0.14), 0 4px 20px rgba(0,0,0,0.55)',
+  },
+}
+
+// Neon text-shadows
+const TG = {
+  yellow: { textShadow: '0 0 18px rgba(251,191,36,0.75), 0 0 6px rgba(251,191,36,0.4)' },
+  green: { textShadow: '0 0 18px rgba(52,211,153,0.65), 0 0 6px rgba(52,211,153,0.3)' },
+  blue: { textShadow: '0 0 18px rgba(56,189,248,0.65), 0 0 6px rgba(56,189,248,0.3)' },
+  red: { textShadow: '0 0 18px rgba(248,113,113,0.7), 0 0 6px rgba(248,113,113,0.38)' },
+}
 
 interface Props {
   profile: MonthProfile
@@ -46,10 +74,19 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
   const todayBudget = getTodayBudget(profile)
   const startDaily = getStartDailyBudget(profile)
   const net = incomeTotal(profile) - expensesTotal(profile)
-  const spentBg = net > 0 ? '#001610' : net < 0 ? '#1a0606' : '#000f1a'
-  const spentColor = net > 0 ? '#42d392' : net < 0 ? '#e85c5c' : '#4db8e8'
 
-  // Animated numbers — count up from 0 on mount, instant after
+  const remainingCS = remaining < 0 ? CS.red : CS.yellow
+  const remainingTG = remaining < 0 ? TG.red : TG.yellow
+  const remainingColor = remaining < 0 ? '#f87171' : '#fbbf24'
+
+  const spentCS = net > 0 ? CS.green : net < 0 ? CS.red : CS.blue
+  const spentTG = net > 0 ? TG.green : net < 0 ? TG.red : TG.blue
+  const spentColor = net > 0 ? '#34d399' : net < 0 ? '#f87171' : '#38bdf8'
+
+  const todayCS = todayBudget > 0 ? CS.yellow : CS.red
+  const todayTG = todayBudget > 0 ? TG.yellow : TG.red
+  const todayColor = todayBudget > 0 ? '#fbbf24' : '#f87171'
+
   const animRemaining = useCountUp(Math.abs(remaining))
   const animSavings = useCountUp(profile.savingsGoal)
   const animSalary = useCountUp(profile.salary)
@@ -64,10 +101,10 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
 
   return (
     <div
-      className="h-dvh flex flex-col bg-[#0a0a0a] text-white overflow-hidden"
+      className="h-dvh flex flex-col text-white overflow-hidden"
       style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      {/* ── Header ── */}
+      {/* Header */}
       <div className="flex-none flex items-center justify-between px-5 py-3">
         <button
           onClick={onOpenMenu}
@@ -92,62 +129,65 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
         </button>
       </div>
 
-      {/* ── Top 3 cards ── */}
+      {/* Top 3 cards */}
       <div className="flex-none px-4 pb-3 grid grid-cols-3 gap-2.5">
-        {/* Remaining — Yellow */}
+        {/* Remaining */}
         <motion.div
           {...CARD}
           transition={{ duration: 0.38, delay: 0.04, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="bg-[#1a1600] rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
+          className="rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
+          style={remainingCS}
         >
           <span
             className="text-[16px] font-bold leading-none tabular-nums"
-            style={{ color: remaining < 0 ? '#e85c5c' : '#f0c040' }}
+            style={{ color: remainingColor, ...remainingTG }}
           >
             {remaining < 0 ? '-' : ''}€{fmt(animRemaining)}
           </span>
         </motion.div>
 
-        {/* Savings Goal — Green */}
+        {/* Savings Goal */}
         <motion.button
           {...CARD}
           transition={{ default: { duration: 0.38, delay: 0.10, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
           whileTap={{ scale: 0.93 }}
           onClick={onEditSavings}
-          className="bg-[#001610] rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
+          className="rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
+          style={CS.green}
         >
           {profile.savingsGoal === 0 ? (
-            <span className="text-[11px] font-semibold text-[#42d392] opacity-50 text-center leading-tight">
+            <span className="text-[11px] font-semibold opacity-50 text-center leading-tight" style={{ color: '#34d399' }}>
               Add savings
             </span>
           ) : (
-            <span className="text-[22px] font-bold leading-none text-[#42d392] tabular-nums">
+            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#34d399', ...TG.green }}>
               €{fmt(animSavings, 0)}
             </span>
           )}
         </motion.button>
 
-        {/* Salary — Blue */}
+        {/* Salary */}
         <motion.button
           {...CARD}
           transition={{ default: { duration: 0.38, delay: 0.16, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
           whileTap={{ scale: 0.93 }}
           onClick={onEditSalary}
-          className="bg-[#000f1a] rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
+          className="rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
+          style={CS.blue}
         >
           {profile.salary === 0 ? (
-            <span className="text-[11px] font-semibold text-[#4db8e8] opacity-50 text-center leading-tight">
+            <span className="text-[11px] font-semibold opacity-50 text-center leading-tight" style={{ color: '#38bdf8' }}>
               Add salary
             </span>
           ) : (
-            <span className="text-[22px] font-bold leading-none text-[#4db8e8] tabular-nums">
+            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#38bdf8', ...TG.blue }}>
               €{fmt(animSalary, 0)}
             </span>
           )}
         </motion.button>
       </div>
 
-      {/* ── Spent section (expands) ── */}
+      {/* Spent section */}
       <div className={`flex flex-col min-h-0 px-4 ${expanded ? 'flex-1' : 'flex-none'}`}>
         <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">
           Spent So Far
@@ -159,9 +199,9 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           whileTap={{ scale: 0.985 }}
           onClick={() => setExpanded(e => !e)}
           className="w-full rounded-[20px] px-5 py-5 flex items-center justify-between"
-          style={{ backgroundColor: spentBg }}
+          style={spentCS}
         >
-          <span className="text-[34px] font-bold leading-none tabular-nums" style={{ color: spentColor }}>
+          <span className="text-[34px] font-bold leading-none tabular-nums" style={{ color: spentColor, ...spentTG }}>
             €{fmt(animNet)}
           </span>
           <span
@@ -181,9 +221,8 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
                 {sortedTxs.map(tx => (
                   <div key={tx.id} className="flex items-center py-2.5 border-b border-white/5">
                     <span
-                      className={`text-sm font-semibold w-[88px] flex-shrink-0 tabular-nums ${
-                        tx.type === 'expense' ? 'text-[#e85c5c]' : 'text-[#42d392]'
-                      }`}
+                      className="text-sm font-semibold w-[88px] flex-shrink-0 tabular-nums"
+                      style={{ color: tx.type === 'expense' ? '#f87171' : '#34d399' }}
                     >
                       {tx.type === 'expense' ? '-' : '+'}€{Math.abs(tx.amount).toFixed(2)}
                     </span>
@@ -208,7 +247,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
 
       {!expanded && <div className="flex-1" />}
 
-      {/* ── Daily Budget + Today's Budget ── */}
+      {/* Daily Budget + Today's Budget */}
       <div className="flex-none px-4 mt-3 flex gap-2.5">
         <motion.div
           {...CARD}
@@ -218,8 +257,8 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">
             Daily Budget
           </p>
-          <div className="bg-[#1a1600] rounded-[20px] px-4 py-5">
-            <span className="text-[22px] font-bold text-[#f0c040] leading-none tabular-nums">
+          <div className="rounded-[20px] px-4 py-5" style={CS.yellow}>
+            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#fbbf24', ...TG.yellow }}>
               €{fmt(animDaily)}
             </span>
             <span className="text-gray-600 text-xs ml-1">/day</span>
@@ -237,18 +276,12 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">
             Today's Budget
           </p>
-          <div
-            className="rounded-[20px] px-4 py-5"
-            style={{ backgroundColor: todayBudget > 0 ? '#1a1600' : '#1a0606' }}
-          >
-            <span
-              className="text-[22px] font-bold leading-none tabular-nums"
-              style={{ color: todayBudget > 0 ? '#f0c040' : '#e85c5c' }}
-            >
+          <div className="rounded-[20px] px-4 py-5" style={todayCS}>
+            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: todayColor, ...todayTG }}>
               €{todayBudget > 0 ? fmt(animToday) : '0.00'}
             </span>
             {todayBudget <= 0 && (
-              <p className="text-[11px] text-[#e85c5c] opacity-60 mt-1.5 tabular-nums leading-none">
+              <p className="text-[11px] opacity-60 mt-1.5 tabular-nums leading-none" style={{ color: '#f87171' }}>
                 -€{fmt(animToday)}
               </p>
             )}
@@ -256,7 +289,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
         </motion.div>
       </div>
 
-      {/* ── Bottom bar ── */}
+      {/* Bottom bar */}
       <div className="flex-none h-[84px] flex items-center justify-center relative">
         <button
           onClick={onAddTx}

@@ -257,7 +257,7 @@ export default function App() {
   }, [activeProfileId])
 
   return (
-    <div className="h-dvh w-full bg-[#0a0a0a] overflow-hidden relative">
+    <div className="h-dvh w-full overflow-hidden relative">
 
       <AnimatePresence mode="wait">
         {screen === 'welcome' && (
@@ -379,7 +379,7 @@ export default function App() {
 function WelcomeScreen({ onStart }: { onStart: () => void }) {
   return (
     <div
-      className="h-dvh flex flex-col items-center justify-center px-8 bg-[#0a0a0a]"
+      className="h-dvh flex flex-col items-center justify-center px-8"
       style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="text-center mb-10">
@@ -388,7 +388,8 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
       </div>
       <button
         onClick={onStart}
-        className="w-full py-4 rounded-[20px] bg-[#42d392] text-black font-bold text-base tracking-wide active:opacity-80 transition-opacity"
+        className="w-full py-4 rounded-[20px] text-black font-bold text-base tracking-wide active:opacity-80 transition-opacity"
+        style={{ backgroundColor: '#34d399', boxShadow: '0 0 28px rgba(52,211,153,0.35)' }}
       >
         START SAVING
       </button>

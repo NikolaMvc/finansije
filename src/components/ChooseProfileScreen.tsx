@@ -29,7 +29,7 @@ export default function ChooseProfileScreen({ profiles, onSelect, onCreateNew, o
 
   return (
     <div
-      className="h-dvh flex flex-col bg-[#0a0a0a] text-white"
+      className="h-dvh flex flex-col text-white"
       style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       {/* Header */}
@@ -61,7 +61,8 @@ export default function ChooseProfileScreen({ profiles, onSelect, onCreateNew, o
                 </div>
                 <button
                   onClick={() => saveEdit(profile.id)}
-                  className="px-4 rounded-2xl bg-[#001610] text-[#42d392] text-sm font-semibold active:opacity-70"
+                  className="px-4 rounded-2xl text-sm font-semibold active:opacity-70"
+                  style={{ background: 'linear-gradient(150deg,#001a12,#002b1d)', color: '#34d399' }}
                 >
                   Save
                 </button>
@@ -95,7 +96,8 @@ export default function ChooseProfileScreen({ profiles, onSelect, onCreateNew, o
       >
         <button
           onClick={onCreateNew}
-          className="w-full py-4 rounded-[20px] bg-[#42d392] text-black font-bold text-base tracking-wide active:opacity-80 transition-opacity"
+          className="w-full py-4 rounded-[20px] text-black font-bold text-base tracking-wide active:opacity-80 transition-opacity"
+          style={{ backgroundColor: '#34d399', boxShadow: '0 0 28px rgba(52,211,153,0.3)' }}
         >
           + Create new profile
         </button>

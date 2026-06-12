@@ -50,13 +50,21 @@ export default function AddTxModal({ isOpen, onAdd, onClose }: Props) {
           <div className="flex gap-2">
             <button
               onClick={() => setType('expense')}
-              className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-colors ${type === 'expense' ? 'bg-[#1c0808] text-[#e85c5c]' : 'bg-white/5 text-gray-600'}`}
+              className="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
+              style={type === 'expense'
+                ? { background: 'linear-gradient(150deg,#1e0808,#2c0e0e)', color: '#f87171' }
+                : { backgroundColor: 'rgba(255,255,255,0.05)', color: '#4b5563' }
+              }
             >
               Expense
             </button>
             <button
               onClick={() => setType('income')}
-              className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-colors ${type === 'income' ? 'bg-[#001610] text-[#42d392]' : 'bg-white/5 text-gray-600'}`}
+              className="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
+              style={type === 'income'
+                ? { background: 'linear-gradient(150deg,#001a12,#002b1d)', color: '#34d399' }
+                : { backgroundColor: 'rgba(255,255,255,0.05)', color: '#4b5563' }
+              }
             >
               Income
             </button>
@@ -64,7 +72,7 @@ export default function AddTxModal({ isOpen, onAdd, onClose }: Props) {
 
           {/* Amount */}
           <div className="bg-[#1a1a1a] rounded-2xl px-4 py-3 flex items-center gap-2">
-            <span className={`text-base font-medium ${type === 'expense' ? 'text-[#e85c5c]' : 'text-[#42d392]'}`}>€</span>
+            <span className="text-base font-medium" style={{ color: type === 'expense' ? '#f87171' : '#34d399' }}>€</span>
             <input
               type="number"
               inputMode="decimal"
@@ -98,7 +106,11 @@ export default function AddTxModal({ isOpen, onAdd, onClose }: Props) {
             </button>
             <button
               onClick={submit}
-              className={`flex-1 py-3.5 rounded-2xl text-sm font-semibold active:opacity-70 transition-opacity ${type === 'expense' ? 'bg-[#1c0808] text-[#e85c5c]' : 'bg-[#001610] text-[#42d392]'}`}
+              className="flex-1 py-3.5 rounded-2xl text-sm font-semibold active:opacity-70 transition-opacity"
+              style={type === 'expense'
+                ? { background: 'linear-gradient(150deg,#1e0808,#2c0e0e)', color: '#f87171' }
+                : { background: 'linear-gradient(150deg,#001a12,#002b1d)', color: '#34d399' }
+              }
             >
               {type === 'expense' ? 'Add Expense' : 'Add Income'}
             </button>
