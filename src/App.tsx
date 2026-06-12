@@ -329,27 +329,39 @@ export default function App() {
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring' as const, stiffness: 340, damping: 32 }}
+              exit={{ x: '-100%', transition: { duration: 0.18, ease: 'easeIn' as const } }}
+              transition={{ type: 'spring' as const, stiffness: 460, damping: 38 }}
               className="absolute top-0 left-0 h-full w-60 flex flex-col"
               style={{
-                background: 'linear-gradient(to right, #141414, #111111)',
-                borderRight: '1px solid rgba(255,255,255,0.055)',
+                background: 'linear-gradient(160deg, #0c1520 0%, #101318 40%, #0e0e0e 100%)',
+                borderRight: '1px solid rgba(56,189,248,0.07)',
                 paddingTop: 'env(safe-area-inset-top)',
                 paddingBottom: 'env(safe-area-inset-bottom)',
               }}
               onClick={e => e.stopPropagation()}
             >
               <div className="px-4 pt-14 pb-6 space-y-1 flex-1">
-                <motion.div initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 }}>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.16, delay: 0.04, ease: [0.25, 0.46, 0.45, 0.94] }}
+                >
                   <MenuRow label="Current Month" onClick={handleCurrentMonth} />
                 </motion.div>
-                <motion.div initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.13 }}>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.16, delay: 0.09, ease: [0.25, 0.46, 0.45, 0.94] }}
+                >
                   <MenuRow label="History" onClick={() => { setShowHistory(true); setMenuOpen(false) }} />
                 </motion.div>
               </div>
               <div className="px-4 pb-6">
-                <motion.div initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.19 }}>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.16, delay: 0.14, ease: [0.25, 0.46, 0.45, 0.94] }}
+                >
                   <MenuRow label="Change Profile" onClick={handleChangeProfile} />
                 </motion.div>
               </div>
