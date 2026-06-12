@@ -228,6 +228,16 @@ export default function App() {
     update({ ...data, profiles: { ...data.profiles, [profileId]: { ...profile, name: newName } } })
   }
 
+  function handleDeleteProfile(profileId: string) {
+    const newProfiles = { ...data.profiles }
+    delete newProfiles[profileId]
+    const newData = { profiles: newProfiles }
+    update(newData)
+    if (Object.keys(newProfiles).length === 0) {
+      setScreen('welcome')
+    }
+  }
+
   function handleChangeProfile() {
     setDirection(-1)
     setScreen('choose')
@@ -280,6 +290,7 @@ export default function App() {
               onSelect={handleSelectProfile}
               onCreateNew={handleStartCreateProfile}
               onRename={handleRenameProfile}
+              onDelete={handleDeleteProfile}
             />
           </motion.div>
         )}
@@ -303,27 +314,49 @@ export default function App() {
       </AnimatePresence>
 
       {/* Menu */}
-      {menuOpen && (
-        <div
-          className="absolute inset-0 z-30 animate-fade-in"
-          style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
-          onClick={() => setMenuOpen(false)}
-        >
-          <div
-            className="absolute top-0 left-0 h-full w-60 bg-[#0f0f0f] flex flex-col"
-            style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
-            onClick={e => e.stopPropagation()}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            key="menu-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            className="absolute inset-0 z-30"
+            style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}
+            onClick={() => setMenuOpen(false)}
           >
-            <div className="px-4 pt-14 pb-6 space-y-1 flex-1">
-              <MenuRow label="Current Month" onClick={handleCurrentMonth} />
-              <MenuRow label="History" onClick={() => { setShowHistory(true); setMenuOpen(false) }} />
-            </div>
-            <div className="px-4 pb-6">
-              <MenuRow label="Change Profile" onClick={handleChangeProfile} />
-            </div>
-          </div>
-        </div>
-      )}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring' as const, stiffness: 340, damping: 32 }}
+              className="absolute top-0 left-0 h-full w-60 flex flex-col"
+              style={{
+                background: 'linear-gradient(to right, #141414, #111111)',
+                borderRight: '1px solid rgba(255,255,255,0.055)',
+                paddingTop: 'env(safe-area-inset-top)',
+                paddingBottom: 'env(safe-area-inset-bottom)',
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="px-4 pt-14 pb-6 space-y-1 flex-1">
+                <motion.div initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.07 }}>
+                  <MenuRow label="Current Month" onClick={handleCurrentMonth} />
+                </motion.div>
+                <motion.div initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.13 }}>
+                  <MenuRow label="History" onClick={() => { setShowHistory(true); setMenuOpen(false) }} />
+                </motion.div>
+              </div>
+              <div className="px-4 pb-6">
+                <motion.div initial={{ opacity: 0, x: -14 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.19 }}>
+                  <MenuRow label="Change Profile" onClick={handleChangeProfile} />
+                </motion.div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <CreateProfileModal
         isOpen={showCreateProfile}
