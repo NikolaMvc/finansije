@@ -261,7 +261,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
               €{fmt(animDaily)}
             </span>
             <span className="text-gray-600 text-xs ml-1">/day</span>
-            <p className="text-[11px] text-gray-500 mt-1.5 tabular-nums leading-none">
+            <p className="text-xs text-gray-600 mt-1.5 tabular-nums leading-none">
               €{fmt(animStartDaily)}/day
             </p>
           </div>
