@@ -154,7 +154,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             style={{ background: 'linear-gradient(150deg, #1e0808, #2c0e0e)', boxShadow: '0 0 18px rgba(248,113,113,0.1)' }}
           >
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Spent</div>
-            <div className="text-sm font-bold" style={{ color: '#f87171', textShadow: '0 0 12px rgba(248,113,113,0.6)' }}>
+            <div className="text-sm font-bold" style={{ color: '#f87171' }}>
               €{(getSpentSoFar(profile!) + fixedTotal(profile!)).toFixed(0)}
             </div>
           </div>
@@ -165,7 +165,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             style={{ background: 'linear-gradient(150deg, #001020, #001a35)', boxShadow: '0 0 18px rgba(56,189,248,0.1)' }}
           >
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Salary</div>
-            <div className="text-sm font-bold" style={{ color: '#38bdf8', textShadow: '0 0 12px rgba(56,189,248,0.6)' }}>
+            <div className="text-sm font-bold" style={{ color: '#38bdf8' }}>
               €{profile!.salary.toFixed(0)}
             </div>
           </div>
@@ -181,10 +181,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             <div className="text-[10px] text-gray-600 uppercase tracking-wider mb-0.5">Saved</div>
             <div
               className="text-sm font-bold leading-tight"
-              style={goalMet
-                ? { color: '#34d399', textShadow: '0 0 12px rgba(52,211,153,0.6)' }
-                : { color: '#f87171', textShadow: '0 0 12px rgba(248,113,113,0.6)' }
-              }
+              style={goalMet ? { color: '#34d399' } : { color: '#f87171' }}
             >
               €{actualSaved.toFixed(0)}
             </div>

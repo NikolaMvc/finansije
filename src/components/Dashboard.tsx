@@ -32,13 +32,6 @@ const CS = {
   },
 }
 
-// Neon text-shadows
-const TG = {
-  yellow: { textShadow: '0 0 18px rgba(251,191,36,0.75), 0 0 6px rgba(251,191,36,0.4)' },
-  green: { textShadow: '0 0 18px rgba(52,211,153,0.65), 0 0 6px rgba(52,211,153,0.3)' },
-  blue: { textShadow: '0 0 18px rgba(56,189,248,0.65), 0 0 6px rgba(56,189,248,0.3)' },
-  red: { textShadow: '0 0 18px rgba(248,113,113,0.7), 0 0 6px rgba(248,113,113,0.38)' },
-}
 
 interface Props {
   profile: MonthProfile
@@ -76,15 +69,12 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
   const net = incomeTotal(profile) - expensesTotal(profile)
 
   const remainingCS = remaining < 0 ? CS.red : CS.yellow
-  const remainingTG = remaining < 0 ? TG.red : TG.yellow
   const remainingColor = remaining < 0 ? '#f87171' : '#fbbf24'
 
   const spentCS = net > 0 ? CS.green : net < 0 ? CS.red : CS.blue
-  const spentTG = net > 0 ? TG.green : net < 0 ? TG.red : TG.blue
   const spentColor = net > 0 ? '#34d399' : net < 0 ? '#f87171' : '#38bdf8'
 
   const todayCS = todayBudget > 0 ? CS.yellow : CS.red
-  const todayTG = todayBudget > 0 ? TG.yellow : TG.red
   const todayColor = todayBudget > 0 ? '#fbbf24' : '#f87171'
 
   const animRemaining = useCountUp(Math.abs(remaining))
@@ -142,7 +132,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           >
             <span
               className="text-[16px] font-bold leading-none tabular-nums"
-              style={{ color: remainingColor, ...remainingTG }}
+              style={{ color: remainingColor }}
             >
               {remaining < 0 ? '-' : ''}€{fmt(animRemaining)}
             </span>
@@ -165,7 +155,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
                 Add savings
               </span>
             ) : (
-              <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#34d399', ...TG.green }}>
+              <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#34d399', }}>
                 €{fmt(animSavings, 0)}
               </span>
             )}
@@ -188,7 +178,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
                 Add salary
               </span>
             ) : (
-              <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#38bdf8', ...TG.blue }}>
+              <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#38bdf8', }}>
                 €{fmt(animSalary, 0)}
               </span>
             )}
@@ -210,7 +200,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           className="w-full rounded-[20px] px-5 py-5 flex items-center justify-between"
           style={spentCS}
         >
-          <span className="text-[34px] font-bold leading-none tabular-nums" style={{ color: spentColor, ...spentTG }}>
+          <span className="text-[34px] font-bold leading-none tabular-nums" style={{ color: spentColor }}>
             €{fmt(animNet)}
           </span>
           <span
@@ -267,7 +257,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
             Daily Budget
           </p>
           <div className="rounded-[20px] px-4 py-5" style={CS.yellow}>
-            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#fbbf24', ...TG.yellow }}>
+            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#fbbf24', }}>
               €{fmt(animDaily)}
             </span>
             <span className="text-gray-600 text-xs ml-1">/day</span>
@@ -286,7 +276,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
             Today's Budget
           </p>
           <div className="rounded-[20px] px-4 py-5" style={todayCS}>
-            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: todayColor, ...todayTG }}>
+            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: todayColor }}>
               €{todayBudget > 0 ? fmt(animToday) : '0.00'}
             </span>
             {todayBudget <= 0 && (
