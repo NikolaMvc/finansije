@@ -329,10 +329,11 @@ export default function App() {
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%', transition: { duration: 0.18, ease: 'easeIn' as const } }}
-              transition={{ type: 'spring' as const, stiffness: 460, damping: 38 }}
+              exit={{ x: '-100%', transition: { duration: 0.18, ease: [0.32, 0.72, 0, 1] as const } }}
+              transition={{ type: 'tween' as const, duration: 0.26, ease: [0.32, 0.72, 0, 1] as const }}
               className="absolute top-0 left-0 h-full w-60 flex flex-col"
               style={{
+                willChange: 'transform',
                 background: 'linear-gradient(160deg, #0c1520 0%, #101318 40%, #0e0e0e 100%)',
                 borderRight: '1px solid rgba(56,189,248,0.07)',
                 paddingTop: 'env(safe-area-inset-top)',
