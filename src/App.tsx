@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import type { AppData, Profile, MonthProfile, Transaction, FixedExpense } from './types'
 import { loadData, saveData } from './utils/storage'
 import Dashboard from './components/Dashboard'
@@ -42,12 +43,14 @@ function ensureCurrentMonthInProfile(profile: Profile): Profile | null {
 
 type AppScreen = 'welcome' | 'choose' | 'dashboard'
 
+
 export default function App() {
   const [data, setData] = useState<AppData>(() => loadData())
   const [screen, setScreen] = useState<AppScreen>(() =>
     Object.keys(loadData().profiles).length === 0 ? 'welcome' : 'choose'
   )
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null)
+  const [direction, setDirection] = useState(1)
 
   // Modal / overlay states
   const [showSetup, setShowSetup] = useState(false)
@@ -88,6 +91,7 @@ export default function App() {
     if (updated) {
       update({ ...data, profiles: { ...data.profiles, [profileId]: updated } })
     }
+    setDirection(1)
     setActiveProfileId(profileId)
     setScreen('dashboard')
   }
@@ -118,6 +122,7 @@ export default function App() {
       }
       update({ profiles: { ...data.profiles, [profileId]: newProfile } })
       setPendingProfileName('')
+      setDirection(1)
       setActiveProfileId(profileId)
       setScreen('dashboard')
     } else {
@@ -224,6 +229,7 @@ export default function App() {
   }
 
   function handleChangeProfile() {
+    setDirection(-1)
     setScreen('choose')
     setActiveProfileId(null)
     setMenuOpen(false)
@@ -253,30 +259,48 @@ export default function App() {
   return (
     <div className="h-dvh w-full bg-[#0a0a0a] overflow-hidden relative">
 
-      {screen === 'welcome' && (
-        <WelcomeScreen onStart={handleStartCreateProfile} />
-      )}
-
-      {screen === 'choose' && (
-        <ChooseProfileScreen
-          profiles={data.profiles}
-          onSelect={handleSelectProfile}
-          onCreateNew={handleStartCreateProfile}
-          onRename={handleRenameProfile}
-        />
-      )}
-
-      {screen === 'dashboard' && activeMonthProfile && (
-        <Dashboard
-          profile={activeMonthProfile}
-          onAddTx={() => setShowAddTx(true)}
-          onDeleteTx={handleDeleteTx}
-          onEditSalary={() => setShowEditSalary(true)}
-          onEditSavings={() => setShowEditSavings(true)}
-          onOpenMenu={() => setMenuOpen(true)}
-          onOpenHelp={() => setShowHelp(true)}
-        />
-      )}
+      <AnimatePresence mode="wait">
+        {screen === 'welcome' && (
+          <motion.div key="welcome" className="absolute inset-0"
+            initial={{ opacity: 0, x: direction * 28 }}
+            animate={{ opacity: 1, x: 0, transition: { duration: 0.22, ease: 'easeOut' as const } }}
+            exit={{ opacity: 0, x: direction * -28, transition: { duration: 0.16, ease: 'easeIn' as const } }}
+          >
+            <WelcomeScreen onStart={handleStartCreateProfile} />
+          </motion.div>
+        )}
+        {screen === 'choose' && (
+          <motion.div key="choose" className="absolute inset-0"
+            initial={{ opacity: 0, x: direction * 28 }}
+            animate={{ opacity: 1, x: 0, transition: { duration: 0.22, ease: 'easeOut' as const } }}
+            exit={{ opacity: 0, x: direction * -28, transition: { duration: 0.16, ease: 'easeIn' as const } }}
+          >
+            <ChooseProfileScreen
+              profiles={data.profiles}
+              onSelect={handleSelectProfile}
+              onCreateNew={handleStartCreateProfile}
+              onRename={handleRenameProfile}
+            />
+          </motion.div>
+        )}
+        {screen === 'dashboard' && activeMonthProfile && (
+          <motion.div key={`dashboard-${activeProfileId}`} className="absolute inset-0"
+            initial={{ opacity: 0, x: direction * 28 }}
+            animate={{ opacity: 1, x: 0, transition: { duration: 0.22, ease: 'easeOut' as const } }}
+            exit={{ opacity: 0, x: direction * -28, transition: { duration: 0.16, ease: 'easeIn' as const } }}
+          >
+            <Dashboard
+              profile={activeMonthProfile}
+              onAddTx={() => setShowAddTx(true)}
+              onDeleteTx={handleDeleteTx}
+              onEditSalary={() => setShowEditSalary(true)}
+              onEditSavings={() => setShowEditSavings(true)}
+              onOpenMenu={() => setMenuOpen(true)}
+              onOpenHelp={() => setShowHelp(true)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Menu */}
       {menuOpen && (
