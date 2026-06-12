@@ -130,61 +130,70 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
       </div>
 
       {/* Top 3 cards */}
-      <div className="flex-none px-4 pb-3 grid grid-cols-3 gap-2.5">
+      <div className="flex-none px-4 pb-3 flex gap-2.5">
         {/* Remaining */}
-        <motion.div
-          {...CARD}
-          transition={{ duration: 0.38, delay: 0.04, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
-          style={remainingCS}
-        >
-          <span
-            className="text-[16px] font-bold leading-none tabular-nums"
-            style={{ color: remainingColor, ...remainingTG }}
+        <div className="flex-1">
+          <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">Remaining</p>
+          <motion.div
+            {...CARD}
+            transition={{ duration: 0.38, delay: 0.04, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
+            style={remainingCS}
           >
-            {remaining < 0 ? '-' : ''}€{fmt(animRemaining)}
-          </span>
-        </motion.div>
+            <span
+              className="text-[16px] font-bold leading-none tabular-nums"
+              style={{ color: remainingColor, ...remainingTG }}
+            >
+              {remaining < 0 ? '-' : ''}€{fmt(animRemaining)}
+            </span>
+          </motion.div>
+        </div>
 
         {/* Savings Goal */}
-        <motion.button
-          {...CARD}
-          transition={{ default: { duration: 0.38, delay: 0.10, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
-          whileTap={{ scale: 0.93 }}
-          onClick={onEditSavings}
-          className="rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
-          style={CS.green}
-        >
-          {profile.savingsGoal === 0 ? (
-            <span className="text-[11px] font-semibold opacity-50 text-center leading-tight" style={{ color: '#34d399' }}>
-              Add savings
-            </span>
-          ) : (
-            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#34d399', ...TG.green }}>
-              €{fmt(animSavings, 0)}
-            </span>
-          )}
-        </motion.button>
+        <div className="flex-1">
+          <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">Savings</p>
+          <motion.button
+            {...CARD}
+            transition={{ default: { duration: 0.38, delay: 0.10, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
+            whileTap={{ scale: 0.93 }}
+            onClick={onEditSavings}
+            className="w-full rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
+            style={CS.green}
+          >
+            {profile.savingsGoal === 0 ? (
+              <span className="text-[11px] font-semibold opacity-50 text-center leading-tight" style={{ color: '#34d399' }}>
+                Add savings
+              </span>
+            ) : (
+              <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#34d399', ...TG.green }}>
+                €{fmt(animSavings, 0)}
+              </span>
+            )}
+          </motion.button>
+        </div>
 
         {/* Salary */}
-        <motion.button
-          {...CARD}
-          transition={{ default: { duration: 0.38, delay: 0.16, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
-          whileTap={{ scale: 0.93 }}
-          onClick={onEditSalary}
-          className="rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
-          style={CS.blue}
-        >
-          {profile.salary === 0 ? (
-            <span className="text-[11px] font-semibold opacity-50 text-center leading-tight" style={{ color: '#38bdf8' }}>
-              Add salary
-            </span>
-          ) : (
-            <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#38bdf8', ...TG.blue }}>
-              €{fmt(animSalary, 0)}
-            </span>
-          )}
-        </motion.button>
+        <div className="flex-1">
+          <p className="text-[10px] text-gray-700 uppercase tracking-[0.14em] font-semibold mb-2">Salary</p>
+          <motion.button
+            {...CARD}
+            transition={{ default: { duration: 0.38, delay: 0.16, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
+            whileTap={{ scale: 0.93 }}
+            onClick={onEditSalary}
+            className="w-full rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
+            style={CS.blue}
+          >
+            {profile.salary === 0 ? (
+              <span className="text-[11px] font-semibold opacity-50 text-center leading-tight" style={{ color: '#38bdf8' }}>
+                Add salary
+              </span>
+            ) : (
+              <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: '#38bdf8', ...TG.blue }}>
+                €{fmt(animSalary, 0)}
+              </span>
+            )}
+          </motion.button>
+        </div>
       </div>
 
       {/* Spent section */}
