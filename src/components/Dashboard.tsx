@@ -280,16 +280,16 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
       <div className="flex-none h-[84px] flex items-center justify-center relative">
         <button
           onClick={onAddTx}
-          className="w-[58px] h-[58px] rounded-full bg-white text-black text-[28px] font-light flex items-center justify-center active:scale-90 transition-transform leading-none"
-          style={{ lineHeight: 1 }}
+          className="w-[58px] h-[58px] rounded-full text-[28px] font-light flex items-center justify-center active:scale-90 transition-transform"
+          style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-solid)', lineHeight: 1 }}
           aria-label="Add transaction"
         >
           +
         </button>
         <button
           onClick={onOpenHelp}
-          className="absolute right-5 w-8 h-8 rounded-full text-gray-500 text-xs flex items-center justify-center active:opacity-60 transition-colors"
-          style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+          className="absolute right-5 w-8 h-8 rounded-full text-xs flex items-center justify-center active:opacity-60 transition-colors border"
+          style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--surface-border)', color: 'var(--text-muted)' }}
           aria-label="Help"
         >
           ?
