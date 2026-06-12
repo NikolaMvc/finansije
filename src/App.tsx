@@ -320,12 +320,14 @@ export default function App() {
         onClick={() => setMenuOpen(false)}
       >
         <motion.div
+          initial={{ opacity: 0 }}
           animate={{ opacity: menuOpen ? 1 : 0 }}
           transition={{ duration: 0.2 }}
           className="absolute inset-0"
           style={{ backgroundColor: 'rgba(0,0,0,0.65)' }}
         />
         <motion.div
+          initial={{ x: '-100%' }}
           animate={{ x: menuOpen ? 0 : '-100%' }}
           transition={{ type: 'tween' as const, duration: 0.26, ease: [0.32, 0.72, 0, 1] as const }}
           className="absolute top-0 left-0 h-full w-60 flex flex-col"
