@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { MonthProfile, Transaction } from '../types'
 import { getRemaining, getSpentSoFar, fixedTotal } from '../utils/calc'
 
@@ -26,6 +26,15 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   const [addType, setAddType] = useState<'expense' | 'income'>('expense')
   const [addAmount, setAddAmount] = useState('')
   const [addDesc, setAddDesc] = useState('')
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedDay(null)
+      setAddingTx(false)
+      setAddAmount('')
+      setAddDesc('')
+    }
+  }, [isOpen])
 
   const key = `${viewYear}-${String(viewMonth).padStart(2, '0')}`
   const profile = months[key] ?? null
