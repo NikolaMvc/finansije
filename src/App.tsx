@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { AppData, Profile, MonthProfile, Transaction, FixedExpense } from './types'
 import { loadData, saveData } from './utils/storage'
@@ -54,6 +54,22 @@ export default function App() {
   const [direction, setDirection] = useState(1)
 
   const { isLight, toggle: toggleTheme } = useTheme()
+
+  const swipeStartX = useRef(0)
+  const swipeStartY = useRef(0)
+
+  function handleTouchStart(e: React.TouchEvent) {
+    swipeStartX.current = e.touches[0].clientX
+    swipeStartY.current = e.touches[0].clientY
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const dx = e.changedTouches[0].clientX - swipeStartX.current
+    const dy = e.changedTouches[0].clientY - swipeStartY.current
+    if (Math.abs(dy) > Math.abs(dx)) return
+    if (!menuOpen && dx > 60 && swipeStartX.current < 40) setMenuOpen(true)
+    if (menuOpen && dx < -60) setMenuOpen(false)
+  }
 
   // Modal / overlay states
   const [showSetup, setShowSetup] = useState(false)
@@ -263,7 +279,7 @@ export default function App() {
   }, [activeProfileId])
 
   return (
-    <div className="h-dvh w-full overflow-hidden relative">
+    <div className="h-dvh w-full overflow-hidden relative" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
 
       <AnimatePresence mode="wait">
         {screen === 'welcome' && (
