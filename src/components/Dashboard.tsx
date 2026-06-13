@@ -5,6 +5,7 @@ import { getRemaining, getDailyBudget, getTodayBudget, getStartDailyBudget, inco
 import { useCountUp } from '../utils/useCountUp'
 import MonthProgressCircle from './MonthProgressCircle'
 import ThemeToggle from './ThemeToggle'
+import BottomNav from './BottomNav'
 
 const MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -29,7 +30,8 @@ interface Props {
   onEditSalary: () => void
   onEditSavings: () => void
   onOpenMenu: () => void
-  onOpenHelp: () => void
+  onOpenHistory: () => void
+  onOpenStatistics: () => void
   isLight: boolean
   onToggleTheme: () => void
 }
@@ -44,7 +46,7 @@ function fmtDate(ds: string): string {
   return `${parseInt(d)} ${month}`
 }
 
-export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, onEditSavings, onOpenMenu, onOpenHelp, isLight, onToggleTheme }: Props) {
+export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, onEditSavings, onOpenMenu, onOpenHistory, onOpenStatistics, isLight, onToggleTheme }: Props) {
   const [expanded, setExpanded] = useState(false)
   const [showCircleInfo, setShowCircleInfo] = useState(false)
   const [, setTick] = useState(0)
@@ -301,25 +303,12 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
         </motion.div>
       </div>
 
-      {/* Bottom bar */}
-      <div className="flex-none h-[84px] flex items-center justify-center relative">
-        <button
-          onClick={onAddTx}
-          className="w-[58px] h-[58px] rounded-full text-[28px] font-light flex items-center justify-center active:scale-90 transition-transform"
-          style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-solid)', lineHeight: 1 }}
-          aria-label="Add transaction"
-        >
-          +
-        </button>
-        <button
-          onClick={onOpenHelp}
-          className="absolute right-5 w-8 h-8 rounded-full text-xs flex items-center justify-center active:opacity-60 transition-colors border"
-          style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--surface-border)', color: 'var(--text-muted)' }}
-          aria-label="Help"
-        >
-          ?
-        </button>
-      </div>
+      {/* Bottom navigation */}
+      <BottomNav
+        onHistory={onOpenHistory}
+        onAdd={onAddTx}
+        onStatistics={onOpenStatistics}
+      />
 
       {/* Circle info tooltip */}
       {showCircleInfo && (

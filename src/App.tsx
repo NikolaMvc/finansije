@@ -13,6 +13,7 @@ import EditSavingsModal from './components/EditSavingsModal'
 import ChooseProfileScreen from './components/ChooseProfileScreen'
 import CreateProfileModal from './components/CreateProfileModal'
 import ThemeToggle from './components/ThemeToggle'
+import StatisticsView from './components/StatisticsView'
 
 function genId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`
@@ -175,6 +176,7 @@ export default function App() {
   const [showSetup, setShowSetup] = useState(false)
   const [showAddTx, setShowAddTx] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
+  const [showStatistics, setShowStatistics] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
   const [showEditSalary, setShowEditSalary] = useState(false)
   const [showEditSavings, setShowEditSavings] = useState(false)
@@ -420,7 +422,8 @@ export default function App() {
               onEditSalary={() => setShowEditSalary(true)}
               onEditSavings={() => setShowEditSavings(true)}
               onOpenMenu={() => setMenuOpen(true)}
-              onOpenHelp={() => setShowHelp(true)}
+              onOpenHistory={() => setShowHistory(true)}
+              onOpenStatistics={() => setShowStatistics(true)}
               isLight={isLight}
               onToggleTheme={toggleTheme}
             />
@@ -455,6 +458,8 @@ export default function App() {
           <div className="px-4 pt-14 pb-6 space-y-1 flex-1">
             <MenuRow label="Current Month" onClick={handleCurrentMonth} />
             <MenuRow label="History" onClick={() => { setShowHistory(true); setMenuOpen(false) }} />
+            <MenuRow label="Statistics" onClick={() => { setShowStatistics(true); setMenuOpen(false) }} />
+            <MenuRow label="Help" onClick={() => { setShowHelp(true); setMenuOpen(false) }} />
           </div>
           <div className="px-4 pb-2">
             <MenuRow label="Change Profile" onClick={handleChangeProfile} />
@@ -488,6 +493,12 @@ export default function App() {
         months={activeProfile?.months ?? {}}
         onAddTxToMonth={handleAddTxToMonth}
         onClose={() => setShowHistory(false)}
+      />
+
+      <StatisticsView
+        isOpen={showStatistics}
+        profile={activeMonthProfile}
+        onClose={() => setShowStatistics(false)}
       />
 
       <HelpPanel
