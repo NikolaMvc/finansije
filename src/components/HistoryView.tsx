@@ -195,6 +195,12 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
               €{(getSpentSoFar(profile!) + fixedTotal(profile!)).toFixed(0)}
             </div>
           </div>
+          <div className="rounded-2xl px-2 py-2 text-center" style={{ background: 'var(--card-blue)', boxShadow: 'var(--card-blue-shadow)' }}>
+            <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Salary</div>
+            <div className="text-sm font-bold" style={{ color: 'var(--clr-blue)' }}>
+              €{profile!.salary.toFixed(0)}
+            </div>
+          </div>
           <div
             className="rounded-2xl px-2 py-2 text-center"
             style={goalMet
@@ -211,12 +217,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                 goal: €{profile!.savingsGoal.toFixed(0)}
               </div>
             )}
-          </div>
-          <div className="rounded-2xl px-2 py-2 text-center" style={{ background: 'var(--card-blue)', boxShadow: 'var(--card-blue-shadow)' }}>
-            <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Salary</div>
-            <div className="text-sm font-bold" style={{ color: 'var(--clr-blue)' }}>
-              €{profile!.salary.toFixed(0)}
-            </div>
           </div>
         </div>
       )}
