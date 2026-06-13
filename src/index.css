@@ -7,13 +7,13 @@
   --bg-gradient: radial-gradient(ellipse at 50% 0%, #0d1520 0%, #0a0a0a 55%, #080808 100%);
   --bg-solid: #080808;
   --card-yellow: linear-gradient(150deg, #1a1503 0%, #231c05 100%);
-  --card-yellow-shadow: 0 0 28px rgba(252,211,77,0.16), 0 4px 20px rgba(0,0,0,0.55);
+  --card-yellow-shadow: 0 0 28px rgba(251,191,36,0.14), 0 4px 20px rgba(0,0,0,0.55);
   --card-green: linear-gradient(150deg, #001a12 0%, #002b1d 100%);
   --card-green-shadow: 0 0 28px rgba(52,211,153,0.12), 0 4px 20px rgba(0,0,0,0.55);
   --card-blue: linear-gradient(150deg, #001020 0%, #001a35 100%);
   --card-blue-shadow: 0 0 28px rgba(56,189,248,0.12), 0 4px 20px rgba(0,0,0,0.55);
   --card-red: linear-gradient(150deg, #1f0a0e 0%, #2a0d15 100%);
-  --card-red-shadow: 0 0 28px rgba(251,113,133,0.16), 0 4px 20px rgba(0,0,0,0.55);
+  --card-red-shadow: 0 0 28px rgba(248,113,113,0.14), 0 4px 20px rgba(0,0,0,0.55);
   --clr-yellow: #fcd34d;
   --clr-green: #34d399;
   --clr-green-btn-text: #000000;
