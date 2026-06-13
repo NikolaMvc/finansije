@@ -30,21 +30,61 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
 
   const keyboardOffset = useKeyboardOffset()
 
+  const containerRef = useRef<HTMLDivElement>(null)
   const swipeStartX = useRef(0)
   const swipeStartY = useRef(0)
+  const dragOffsetX = useRef(0)
+  const isDragging = useRef(false)
 
   function handleTouchStart(e: React.TouchEvent) {
+    if (addingTx) return
     swipeStartX.current = e.touches[0].clientX
     swipeStartY.current = e.touches[0].clientY
+    dragOffsetX.current = 0
+    isDragging.current = false
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    if (addingTx) return
+    const dx = e.touches[0].clientX - swipeStartX.current
+    const dy = e.touches[0].clientY - swipeStartY.current
+
+    if (!isDragging.current) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+      if (Math.abs(dy) >= Math.abs(dx)) return
+      if (dx <= 0) return
+      isDragging.current = true
+      if (containerRef.current) containerRef.current.style.animation = 'none'
+    }
+
+    const offset = Math.max(0, dx)
+    dragOffsetX.current = offset
+    if (containerRef.current) {
+      containerRef.current.style.transition = 'none'
+      containerRef.current.style.transform = `translateX(${offset}px)`
+    }
   }
 
   function handleTouchEnd(e: React.TouchEvent) {
-    const dx = e.changedTouches[0].clientX - swipeStartX.current
-    const dy = e.changedTouches[0].clientY - swipeStartY.current
-    if (Math.abs(dy) > Math.abs(dx)) return
-    if (dx > 60) {
-      e.stopPropagation()
-      onClose()
+    if (!isDragging.current) return
+    isDragging.current = false
+    e.stopPropagation()
+
+    const offset = dragOffsetX.current
+    dragOffsetX.current = 0
+    const threshold = window.innerWidth * 0.35
+
+    if (offset > threshold) {
+      if (containerRef.current) {
+        containerRef.current.style.transition = 'transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)'
+        containerRef.current.style.transform = 'translateX(100%)'
+      }
+      setTimeout(onClose, 280)
+    } else {
+      if (containerRef.current) {
+        containerRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+        containerRef.current.style.transform = 'translateX(0)'
+      }
     }
   }
 
@@ -145,8 +185,10 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
 
   return (
     <div
+      ref={containerRef}
       className="absolute inset-0 z-40 flex flex-col overflow-hidden animate-slide-in-right"
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       style={{
         background: 'var(--bg-gradient)',
