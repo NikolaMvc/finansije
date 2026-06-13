@@ -21,14 +21,14 @@ export default function ThemeToggle({ isLight, onToggle }: Props) {
         borderColor: isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.10)',
       }}
     >
-      {/* Sliding indicator — same size as each icon half */}
+      {/* Sliding indicator — perfect circle, centered in each half */}
       <span
         className="absolute rounded-full"
         style={{
-          width: 30,
+          width: 26,
           height: 26,
-          top: 3,
-          left: 3,
+          top: 2,
+          left: 5,
           backgroundColor: isLight ? '#ffffff' : 'rgba(255,255,255,0.20)',
           boxShadow: isLight ? '0 1px 4px rgba(0,0,0,0.18)' : 'none',
           transform: isLight ? 'translateX(30px)' : 'translateX(0)',
