@@ -33,7 +33,9 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   const containerRef = useRef<HTMLDivElement>(null)
   const swipeStartX = useRef(0)
   const swipeStartY = useRef(0)
-  const lastMoveX = useRef(0)
+  const peakX = useRef(0)
+  const velocityTrackX = useRef(0)
+  const velocityTrackTime = useRef(0)
   const isDragging = useRef(false)
 
   function handleTouchStart(e: React.TouchEvent) {
@@ -41,7 +43,9 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
     if (addingTx) return
     swipeStartX.current = e.touches[0].clientX
     swipeStartY.current = e.touches[0].clientY
-    lastMoveX.current = e.touches[0].clientX
+    peakX.current = e.touches[0].clientX
+    velocityTrackX.current = e.touches[0].clientX
+    velocityTrackTime.current = Date.now()
     isDragging.current = false
   }
 
@@ -60,7 +64,14 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
       if (containerRef.current) containerRef.current.style.animation = 'none'
     }
 
-    lastMoveX.current = x
+    if (x > peakX.current) peakX.current = x
+
+    const now = Date.now()
+    if (now - velocityTrackTime.current > 40) {
+      velocityTrackX.current = x
+      velocityTrackTime.current = now
+    }
+
     const offset = Math.max(0, dx)
     if (containerRef.current) {
       containerRef.current.style.transition = 'none'
@@ -74,14 +85,17 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
     e.stopPropagation()
 
     const finalX = e.changedTouches[0].clientX
-    const movingLeft = finalX < lastMoveX.current
-    const finalDx = finalX - swipeStartX.current
-    const offset = Math.max(0, finalDx)
+    const now = Date.now()
+    const elapsed = now - velocityTrackTime.current
+    const velocity = elapsed > 0 && elapsed < 200
+      ? (finalX - velocityTrackX.current) / elapsed
+      : 0
+
+    const retreated = (peakX.current - finalX) > 25 || velocity < -0.3
+    const offset = Math.max(0, finalX - swipeStartX.current)
     const threshold = window.innerWidth * 0.10
 
-    const shouldClose = !movingLeft && offset > threshold
-
-    if (shouldClose) {
+    if (!retreated && offset > threshold) {
       if (containerRef.current) {
         containerRef.current.style.transition = 'transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)'
         containerRef.current.style.transform = 'translateX(100%)'
