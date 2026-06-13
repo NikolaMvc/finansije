@@ -4,42 +4,48 @@ interface Props {
 }
 
 export default function ThemeToggle({ isLight, onToggle }: Props) {
-  // Container outer: 66×32px, border 1px → inner (between borders): 64×30px
-  // Gap g=3px on all outer sides → indicator: 29×24px
-  // Moon: left=3, top=3  →  gaps: left=3, top=3, bottom=3 ✓
-  // Sun:  left=32, top=3 →  gaps: right=64-32-29=3, top=3, bottom=3 ✓
-  // translateX = 32-3 = 29px
+  // Pill: 66×32, border 1px → padding box 64×30
+  // Circle Ø24 (gap 3 top/bottom). Moon center (15,15), Sun center (49,15) → translateX 34
+  // Icons positioned absolutely at the SAME spot as the circle, so each is dead-centered.
+  const D = 24
+  const GAP = 3
+  const moonLeft = GAP        // 3
+  const sunLeft = 64 - GAP - D // 37
+  const shift = sunLeft - moonLeft // 34
+
   return (
     <button
       onClick={onToggle}
       aria-label="Toggle theme"
-      className="relative flex items-center rounded-full active:opacity-70 transition-opacity"
+      className="relative rounded-full active:opacity-70 transition-opacity"
       style={{
         width: 66,
         height: 32,
-        padding: '3px',
-        backgroundColor: isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.10)',
         border: '1px solid',
         borderColor: isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.10)',
+        backgroundColor: isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.10)',
       }}
     >
-      {/* Indicator — equal gap (3px) on all pill-adjacent sides */}
+      {/* Sliding circle indicator */}
       <span
-        className="absolute rounded-[6px]"
+        className="absolute rounded-full"
         style={{
-          width: 29,
-          height: 24,
-          top: 3,
-          left: 3,
+          width: D,
+          height: D,
+          top: GAP,
+          left: moonLeft,
           backgroundColor: isLight ? '#ffffff' : 'rgba(255,255,255,0.22)',
           boxShadow: isLight ? '0 1px 4px rgba(0,0,0,0.18)' : 'none',
-          transform: isLight ? 'translateX(29px)' : 'translateX(0)',
+          transform: isLight ? `translateX(${shift}px)` : 'translateX(0)',
           transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
       />
 
-      {/* Moon — left half, 29px wide, icon centered */}
-      <span className="relative z-10 flex items-center justify-center" style={{ width: 29, height: 24 }}>
+      {/* Moon — centered on the moon circle position */}
+      <span
+        className="absolute z-10 flex items-center justify-center"
+        style={{ width: D, height: D, top: GAP, left: moonLeft }}
+      >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
           <path
             d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
@@ -48,8 +54,11 @@ export default function ThemeToggle({ isLight, onToggle }: Props) {
         </svg>
       </span>
 
-      {/* Sun — right half, 29px wide, icon centered */}
-      <span className="relative z-10 flex items-center justify-center" style={{ width: 29, height: 24 }}>
+      {/* Sun — centered on the sun circle position */}
+      <span
+        className="absolute z-10 flex items-center justify-center"
+        style={{ width: D, height: D, top: GAP, left: sunLeft }}
+      >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
           stroke={isLight ? '#374151' : '#6b7280'} strokeWidth="2.5" strokeLinecap="round">
           <circle cx="12" cy="12" r="4.5" />
