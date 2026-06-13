@@ -291,11 +291,12 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
             <span className="text-[22px] font-bold leading-none tabular-nums" style={{ color: todayColor }}>
               €{todayBudget > 0 ? fmt(animToday) : '0.00'}
             </span>
-            {todayBudget <= 0 && (
-              <p className="text-[11px] opacity-60 mt-1.5 tabular-nums leading-none" style={{ color: 'var(--clr-red)' }}>
-                -€{fmt(animToday)}
-              </p>
-            )}
+            <p
+              className="text-[11px] mt-1.5 tabular-nums leading-none opacity-80"
+              style={{ color: todayBudget < 0 ? 'var(--clr-red)' : 'var(--text-muted)' }}
+            >
+              {todayBudget < 0 ? '-' : ''}€{fmt(animToday)}
+            </p>
           </div>
         </motion.div>
       </div>
