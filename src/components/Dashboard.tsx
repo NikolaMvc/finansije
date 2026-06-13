@@ -4,6 +4,7 @@ import type { MonthProfile, Transaction } from '../types'
 import { getRemaining, getDailyBudget, getTodayBudget, getStartDailyBudget, incomeTotal, expensesTotal, fixedTotal } from '../utils/calc'
 import { useCountUp } from '../utils/useCountUp'
 import MonthProgressCircle from './MonthProgressCircle'
+import ThemeToggle from './ThemeToggle'
 
 const MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -29,6 +30,8 @@ interface Props {
   onEditSavings: () => void
   onOpenMenu: () => void
   onOpenHelp: () => void
+  isLight: boolean
+  onToggleTheme: () => void
 }
 
 function fmt(n: number, decimals = 2): string {
@@ -41,7 +44,7 @@ function fmtDate(ds: string): string {
   return `${parseInt(d)} ${month}`
 }
 
-export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, onEditSavings, onOpenMenu, onOpenHelp }: Props) {
+export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, onEditSavings, onOpenMenu, onOpenHelp, isLight, onToggleTheme }: Props) {
   const [expanded, setExpanded] = useState(false)
   const [showCircleInfo, setShowCircleInfo] = useState(false)
   const [, setTick] = useState(0)
@@ -112,13 +115,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           {MON_SHORT[profile.month - 1]} {profile.year}
         </span>
 
-        <button
-          onClick={() => { window.location.href = window.location.origin + window.location.pathname }}
-          className="w-10 h-10 flex items-center justify-center rounded-full text-gray-600 text-lg active:text-gray-300 transition-colors"
-          aria-label="Refresh"
-        >
-          ↻
-        </button>
+        <ThemeToggle isLight={isLight} onToggle={onToggleTheme} />
       </div>
 
       {/* Top 3 cards */}

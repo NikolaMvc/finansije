@@ -12,6 +12,7 @@ import EditSalaryModal from './components/EditSalaryModal'
 import EditSavingsModal from './components/EditSavingsModal'
 import ChooseProfileScreen from './components/ChooseProfileScreen'
 import CreateProfileModal from './components/CreateProfileModal'
+import ThemeToggle from './components/ThemeToggle'
 
 function genId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`
@@ -386,7 +387,7 @@ export default function App() {
             animate={{ opacity: 1, x: 0, transition: { duration: 0.22, ease: 'easeOut' as const } }}
             exit={{ opacity: 0, x: direction * -28, transition: { duration: 0.16, ease: 'easeIn' as const } }}
           >
-            <WelcomeScreen onStart={handleStartCreateProfile} />
+            <WelcomeScreen onStart={handleStartCreateProfile} isLight={isLight} onToggleTheme={toggleTheme} />
           </motion.div>
         )}
         {screen === 'choose' && (
@@ -401,6 +402,8 @@ export default function App() {
               onCreateNew={handleStartCreateProfile}
               onRename={handleRenameProfile}
               onDelete={handleDeleteProfile}
+              isLight={isLight}
+              onToggleTheme={toggleTheme}
             />
           </motion.div>
         )}
@@ -418,6 +421,8 @@ export default function App() {
               onEditSavings={() => setShowEditSavings(true)}
               onOpenMenu={() => setMenuOpen(true)}
               onOpenHelp={() => setShowHelp(true)}
+              isLight={isLight}
+              onToggleTheme={toggleTheme}
             />
           </motion.div>
         )}
@@ -453,16 +458,6 @@ export default function App() {
           </div>
           <div className="px-4 pb-2">
             <MenuRow label="Change Profile" onClick={handleChangeProfile} />
-          </div>
-          <div className="px-4 pb-6">
-            <button
-              onClick={toggleTheme}
-              className="w-full text-left py-3 px-4 rounded-2xl text-sm flex items-center gap-3 active:opacity-60 transition-opacity"
-              style={{ backgroundColor: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
-            >
-              <span>{isLight ? '🌙' : '☀️'}</span>
-              <span>{isLight ? 'Dark mode' : 'Light mode'}</span>
-            </button>
           </div>
         </div>
       </div>
@@ -518,25 +513,30 @@ export default function App() {
   )
 }
 
-function WelcomeScreen({ onStart }: { onStart: () => void }) {
+function WelcomeScreen({ onStart, isLight, onToggleTheme }: { onStart: () => void; isLight: boolean; onToggleTheme: () => void }) {
   return (
     <div
-      className="h-dvh flex flex-col items-center justify-center px-8"
+      className="h-dvh flex flex-col px-8"
       style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="text-center mb-10">
-        <h1 className="text-[38px] font-bold tracking-tight leading-none mb-3" style={{ color: 'var(--text-primary)' }}>
-          Finansije
-        </h1>
-        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Track spending. Hit your savings goal.</p>
+      <div className="flex justify-end pt-3">
+        <ThemeToggle isLight={isLight} onToggle={onToggleTheme} />
       </div>
-      <button
-        onClick={onStart}
-        className="w-full py-4 rounded-[20px] text-black font-bold text-base tracking-wide active:opacity-80 transition-opacity"
-        style={{ backgroundColor: 'var(--clr-green)', boxShadow: '0 0 28px rgba(52,211,153,0.25)' }}
-      >
-        START SAVING
-      </button>
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <div className="text-center mb-10">
+          <h1 className="text-[38px] font-bold tracking-tight leading-none mb-3" style={{ color: 'var(--text-primary)' }}>
+            Finansije
+          </h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Track spending. Hit your savings goal.</p>
+        </div>
+        <button
+          onClick={onStart}
+          className="w-full py-4 rounded-[20px] font-bold text-base tracking-wide active:opacity-80 transition-opacity"
+          style={{ backgroundColor: 'var(--clr-green)', color: 'var(--clr-green-btn-text)', boxShadow: '0 0 28px rgba(52,211,153,0.25)' }}
+        >
+          START SAVING
+        </button>
+      </div>
     </div>
   )
 }

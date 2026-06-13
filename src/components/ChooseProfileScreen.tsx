@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Profile } from '../types'
 import { useKeyboardOffset } from '../utils/useKeyboardOffset'
+import ThemeToggle from './ThemeToggle'
 
 interface Props {
   profiles: Record<string, Profile>
@@ -8,11 +9,13 @@ interface Props {
   onCreateNew: () => void
   onRename: (profileId: string, newName: string) => void
   onDelete: (profileId: string) => void
+  isLight: boolean
+  onToggleTheme: () => void
 }
 
 type ConfirmDelete = { profileId: string; step: 1 | 2 } | null
 
-export default function ChooseProfileScreen({ profiles, onSelect, onCreateNew, onRename, onDelete }: Props) {
+export default function ChooseProfileScreen({ profiles, onSelect, onCreateNew, onRename, onDelete, isLight, onToggleTheme }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [confirmDelete, setConfirmDelete] = useState<ConfirmDelete>(null)
@@ -60,7 +63,10 @@ export default function ChooseProfileScreen({ profiles, onSelect, onCreateNew, o
         color: 'var(--text-primary)',
       }}
     >
-      <div className="flex-none px-5 pt-12 pb-8">
+      <div className="flex-none px-5 pt-4 pb-8">
+        <div className="flex justify-end mb-6">
+          <ThemeToggle isLight={isLight} onToggle={onToggleTheme} />
+        </div>
         <h1 className="text-[34px] font-bold tracking-tight leading-none mb-2" style={{ color: 'var(--text-primary)' }}>
           Finansije
         </h1>
