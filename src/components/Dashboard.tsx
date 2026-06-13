@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import type { MonthProfile, Transaction } from '../types'
 import { getRemaining, getDailyBudget, getTodayBudget, getStartDailyBudget, incomeTotal, expensesTotal } from '../utils/calc'
 import { useCountUp } from '../utils/useCountUp'
+import MonthProgressCircle from './MonthProgressCircle'
 
 const MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -42,6 +43,7 @@ function fmtDate(ds: string): string {
 
 export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, onEditSavings, onOpenMenu, onOpenHelp }: Props) {
   const [expanded, setExpanded] = useState(false)
+  const [showCircleInfo, setShowCircleInfo] = useState(false)
   const [, setTick] = useState(0)
 
   useEffect(() => {
@@ -75,6 +77,14 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
   const sortedTxs: Transaction[] = [...profile.transactions]
     .reverse()
     .sort((a, b) => b.date.localeCompare(a.date))
+
+  // Month progress
+  const daysInMonth = new Date(profile.year, profile.month, 0).getDate()
+  const now = new Date()
+  const isCurrentMonth = now.getFullYear() === profile.year && now.getMonth() + 1 === profile.month
+  const daysPassed = isCurrentMonth ? now.getDate() : daysInMonth
+  const daysLeft = Math.max(0, daysInMonth - daysPassed)
+  const monthProgress = daysPassed / daysInMonth
 
   return (
     <div
@@ -232,7 +242,18 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
         )}
       </div>
 
-      {!expanded && <div className="flex-1" />}
+      {/* Month progress circle */}
+      {!expanded && (
+        <div className="flex-1 flex items-center justify-center">
+          <MonthProgressCircle
+            progress={monthProgress}
+            daysLeft={daysLeft}
+            daysPassed={daysPassed}
+            daysInMonth={daysInMonth}
+            onClick={() => setShowCircleInfo(true)}
+          />
+        </div>
+      )}
 
       {/* Daily Budget + Today's Budget */}
       <div className="flex-none px-4 mt-3 flex gap-2.5">
@@ -295,6 +316,38 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           ?
         </button>
       </div>
+
+      {/* Circle info tooltip */}
+      {showCircleInfo && (
+        <>
+          <div className="absolute inset-0 z-40" onClick={() => setShowCircleInfo(false)} />
+          <div
+            className="absolute bottom-28 left-4 right-4 z-50 rounded-2xl p-4 border"
+            style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--surface-border)' }}
+          >
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: 'var(--clr-blue)' }} />
+                <span className="text-sm leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                  Blue ring — days passed this month ({daysPassed} of {daysInMonth})
+                </span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: 'var(--clr-green)' }} />
+                <span className="text-sm leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                  Green fill — same progress, fills from bottom up as the month goes on
+                </span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5 border" style={{ backgroundColor: 'var(--surface-hover)', borderColor: 'var(--surface-border)' }} />
+                <span className="text-sm leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                  Number — days remaining until end of month ({daysLeft} left)
+                </span>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
