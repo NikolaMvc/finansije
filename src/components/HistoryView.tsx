@@ -33,7 +33,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   const containerRef = useRef<HTMLDivElement>(null)
   const swipeStartX = useRef(0)
   const swipeStartY = useRef(0)
-  const dragOffsetX = useRef(0)
+  const lastMoveX = useRef(0)
   const isDragging = useRef(false)
 
   function handleTouchStart(e: React.TouchEvent) {
@@ -41,14 +41,15 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
     if (addingTx) return
     swipeStartX.current = e.touches[0].clientX
     swipeStartY.current = e.touches[0].clientY
-    dragOffsetX.current = 0
+    lastMoveX.current = e.touches[0].clientX
     isDragging.current = false
   }
 
   function handleTouchMove(e: React.TouchEvent) {
     e.stopPropagation()
     if (addingTx) return
-    const dx = e.touches[0].clientX - swipeStartX.current
+    const x = e.touches[0].clientX
+    const dx = x - swipeStartX.current
     const dy = e.touches[0].clientY - swipeStartY.current
 
     if (!isDragging.current) {
@@ -59,8 +60,8 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
       if (containerRef.current) containerRef.current.style.animation = 'none'
     }
 
+    lastMoveX.current = x
     const offset = Math.max(0, dx)
-    dragOffsetX.current = offset
     if (containerRef.current) {
       containerRef.current.style.transition = 'none'
       containerRef.current.style.transform = `translateX(${offset}px)`
@@ -72,17 +73,15 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
     isDragging.current = false
     e.stopPropagation()
 
-    const finalDx = e.changedTouches[0].clientX - swipeStartX.current
+    const finalX = e.changedTouches[0].clientX
+    const movingLeft = finalX < lastMoveX.current
+    const finalDx = finalX - swipeStartX.current
     const offset = Math.max(0, finalDx)
-    dragOffsetX.current = 0
-
-    if (containerRef.current) {
-      containerRef.current.style.transform = `translateX(${offset}px)`
-    }
-
     const threshold = window.innerWidth * 0.10
 
-    if (offset > threshold) {
+    const shouldClose = !movingLeft && offset > threshold
+
+    if (shouldClose) {
       if (containerRef.current) {
         containerRef.current.style.transition = 'transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)'
         containerRef.current.style.transform = 'translateX(100%)'

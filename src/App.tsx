@@ -62,8 +62,9 @@ export default function App() {
   const backdropRef = useRef<HTMLDivElement>(null)
   const dragStartX = useRef(0)
   const dragStartY = useRef(0)
-  const dragOffset = useRef(0)
+  const lastMoveX = useRef(0)
   const isDragging = useRef(false)
+  // dragOffset removed — direction-based logic uses lastMoveX instead
 
   useEffect(() => {
     if (isDragging.current) return
@@ -81,12 +82,13 @@ export default function App() {
   function handleTouchStart(e: React.TouchEvent) {
     dragStartX.current = e.touches[0].clientX
     dragStartY.current = e.touches[0].clientY
-    dragOffset.current = 0
+    lastMoveX.current = e.touches[0].clientX
     isDragging.current = false
   }
 
   function handleTouchMove(e: React.TouchEvent) {
-    const dx = e.touches[0].clientX - dragStartX.current
+    const x = e.touches[0].clientX
+    const dx = x - dragStartX.current
     const dy = e.touches[0].clientY - dragStartY.current
 
     if (!isDragging.current) {
@@ -97,19 +99,18 @@ export default function App() {
       isDragging.current = true
     }
 
+    lastMoveX.current = x
     const panel = menuPanelRef.current
     const bd = backdropRef.current
     if (!panel) return
 
     if (!menuOpen) {
       const offset = Math.min(MENU_WIDTH, Math.max(0, dx))
-      dragOffset.current = offset
       panel.style.transition = 'none'
       panel.style.transform = `translateX(${offset - MENU_WIDTH}px)`
       if (bd) { bd.style.transition = 'none'; bd.style.opacity = String((offset / MENU_WIDTH) * 0.65) }
     } else {
       const offset = Math.min(MENU_WIDTH, Math.max(0, -dx))
-      dragOffset.current = offset
       panel.style.transition = 'none'
       panel.style.transform = `translateX(-${offset}px)`
       if (bd) { bd.style.transition = 'none'; bd.style.opacity = String((1 - offset / MENU_WIDTH) * 0.65) }
@@ -120,8 +121,9 @@ export default function App() {
     if (!isDragging.current) return
     isDragging.current = false
 
-    const finalDx = e.changedTouches[0].clientX - dragStartX.current
-    dragOffset.current = 0
+    const finalX = e.changedTouches[0].clientX
+    const finalDx = finalX - dragStartX.current
+    const movingLeft = finalX < lastMoveX.current
     const threshold = MENU_WIDTH * 0.25
 
     const panel = menuPanelRef.current
@@ -129,8 +131,8 @@ export default function App() {
 
     if (!menuOpen) {
       const offset = Math.min(MENU_WIDTH, Math.max(0, finalDx))
-      if (panel) panel.style.transform = `translateX(${offset - MENU_WIDTH}px)`
-      if (offset > threshold) {
+      const shouldOpen = !movingLeft && offset > threshold
+      if (shouldOpen) {
         if (panel) { panel.style.transition = 'transform 0.26s cubic-bezier(0.32, 0.72, 0, 1)'; panel.style.transform = 'translateX(0)' }
         if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0.65' }
         setMenuOpen(true)
@@ -140,8 +142,9 @@ export default function App() {
       }
     } else {
       const offset = Math.min(MENU_WIDTH, Math.max(0, -finalDx))
-      if (panel) panel.style.transform = `translateX(-${offset}px)`
-      if (offset > threshold) {
+      const movingRight = finalX > lastMoveX.current
+      const shouldClose = !movingRight && offset > threshold
+      if (shouldClose) {
         if (panel) { panel.style.transition = 'transform 0.26s cubic-bezier(0.32, 0.72, 0, 1)'; panel.style.transform = `translateX(-${MENU_WIDTH}px)` }
         if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0' }
         setTimeout(() => setMenuOpen(false), 260)
