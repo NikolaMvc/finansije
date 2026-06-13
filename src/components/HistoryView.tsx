@@ -72,7 +72,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
 
     const offset = dragOffsetX.current
     dragOffsetX.current = 0
-    const threshold = window.innerWidth * 0.35
+    const threshold = window.innerWidth * 0.10
 
     if (offset > threshold) {
       if (containerRef.current) {

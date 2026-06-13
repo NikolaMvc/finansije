@@ -55,20 +55,93 @@ export default function App() {
 
   const { isLight, toggle: toggleTheme } = useTheme()
 
-  const swipeStartX = useRef(0)
-  const swipeStartY = useRef(0)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const MENU_WIDTH = 240
+  const menuPanelRef = useRef<HTMLDivElement>(null)
+  const backdropRef = useRef<HTMLDivElement>(null)
+  const dragStartX = useRef(0)
+  const dragStartY = useRef(0)
+  const dragOffset = useRef(0)
+  const isDragging = useRef(false)
+
+  useEffect(() => {
+    if (isDragging.current) return
+    const panel = menuPanelRef.current
+    const bd = backdropRef.current
+    if (!panel) return
+    panel.style.transition = 'transform 0.26s cubic-bezier(0.32, 0.72, 0, 1)'
+    panel.style.transform = menuOpen ? 'translateX(0)' : `translateX(-${MENU_WIDTH}px)`
+    if (bd) {
+      bd.style.transition = 'opacity 0.2s ease'
+      bd.style.opacity = menuOpen ? '1' : '0'
+    }
+  }, [menuOpen])
 
   function handleTouchStart(e: React.TouchEvent) {
-    swipeStartX.current = e.touches[0].clientX
-    swipeStartY.current = e.touches[0].clientY
+    dragStartX.current = e.touches[0].clientX
+    dragStartY.current = e.touches[0].clientY
+    dragOffset.current = 0
+    isDragging.current = false
+  }
+
+  function handleTouchMove(e: React.TouchEvent) {
+    const dx = e.touches[0].clientX - dragStartX.current
+    const dy = e.touches[0].clientY - dragStartY.current
+
+    if (!isDragging.current) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+      if (Math.abs(dy) >= Math.abs(dx)) return
+      if (!menuOpen && (dx <= 0 || dragStartX.current > 40)) return
+      if (menuOpen && dx >= 0) return
+      isDragging.current = true
+    }
+
+    const panel = menuPanelRef.current
+    const bd = backdropRef.current
+    if (!panel) return
+
+    if (!menuOpen) {
+      const offset = Math.min(MENU_WIDTH, Math.max(0, dx))
+      dragOffset.current = offset
+      panel.style.transition = 'none'
+      panel.style.transform = `translateX(${offset - MENU_WIDTH}px)`
+      if (bd) { bd.style.transition = 'none'; bd.style.opacity = String((offset / MENU_WIDTH) * 0.65) }
+    } else {
+      const offset = Math.min(MENU_WIDTH, Math.max(0, -dx))
+      dragOffset.current = offset
+      panel.style.transition = 'none'
+      panel.style.transform = `translateX(-${offset}px)`
+      if (bd) { bd.style.transition = 'none'; bd.style.opacity = String((1 - offset / MENU_WIDTH) * 0.65) }
+    }
   }
 
   function handleTouchEnd(e: React.TouchEvent) {
-    const dx = e.changedTouches[0].clientX - swipeStartX.current
-    const dy = e.changedTouches[0].clientY - swipeStartY.current
-    if (Math.abs(dy) > Math.abs(dx)) return
-    if (!menuOpen && dx > 60 && swipeStartX.current < 40) setMenuOpen(true)
-    if (menuOpen && dx < -60) setMenuOpen(false)
+    if (!isDragging.current) return
+    isDragging.current = false
+
+    const offset = dragOffset.current
+    dragOffset.current = 0
+    const threshold = MENU_WIDTH * 0.25
+
+    const panel = menuPanelRef.current
+    const bd = backdropRef.current
+
+    if (!menuOpen && offset > threshold) {
+      if (panel) { panel.style.transition = 'transform 0.26s cubic-bezier(0.32, 0.72, 0, 1)'; panel.style.transform = 'translateX(0)' }
+      if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0.65' }
+      setMenuOpen(true)
+    } else if (!menuOpen) {
+      if (panel) { panel.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'; panel.style.transform = `translateX(-${MENU_WIDTH}px)` }
+      if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0' }
+    } else if (menuOpen && offset > threshold) {
+      if (panel) { panel.style.transition = 'transform 0.26s cubic-bezier(0.32, 0.72, 0, 1)'; panel.style.transform = `translateX(-${MENU_WIDTH}px)` }
+      if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0' }
+      setTimeout(() => setMenuOpen(false), 260)
+    } else {
+      if (panel) { panel.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'; panel.style.transform = 'translateX(0)' }
+      if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0.65' }
+    }
   }
 
   // Modal / overlay states
@@ -78,7 +151,6 @@ export default function App() {
   const [showHelp, setShowHelp] = useState(false)
   const [showEditSalary, setShowEditSalary] = useState(false)
   const [showEditSavings, setShowEditSavings] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
   const [showCreateProfile, setShowCreateProfile] = useState(false)
   const [pendingProfileName, setPendingProfileName] = useState('')
 
@@ -279,7 +351,7 @@ export default function App() {
   }, [activeProfileId])
 
   return (
-    <div className="h-dvh w-full overflow-hidden relative" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+    <div className="h-dvh w-full overflow-hidden relative" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
 
       <AnimatePresence mode="wait">
         {screen === 'welcome' && (
@@ -331,19 +403,16 @@ export default function App() {
         style={{ pointerEvents: menuOpen ? 'auto' : 'none' }}
         onClick={() => setMenuOpen(false)}
       >
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: menuOpen ? 1 : 0 }}
-          transition={{ duration: 0.2 }}
+        <div
+          ref={backdropRef}
           className="absolute inset-0"
-          style={{ backgroundColor: 'rgba(0,0,0,0.55)' }}
+          style={{ backgroundColor: 'rgba(0,0,0,0.55)', opacity: 0 }}
         />
-        <motion.div
-          initial={{ x: '-100%' }}
-          animate={{ x: menuOpen ? 0 : '-100%' }}
-          transition={{ type: 'tween' as const, duration: 0.26, ease: [0.32, 0.72, 0, 1] as const }}
+        <div
+          ref={menuPanelRef}
           className="absolute top-0 left-0 h-full w-60 flex flex-col"
           style={{
+            transform: `translateX(-${MENU_WIDTH}px)`,
             willChange: 'transform',
             background: 'var(--menu-bg)',
             borderRight: '1px solid var(--menu-border)',
@@ -369,7 +438,7 @@ export default function App() {
               <span>{isLight ? 'Dark mode' : 'Light mode'}</span>
             </button>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       <CreateProfileModal
