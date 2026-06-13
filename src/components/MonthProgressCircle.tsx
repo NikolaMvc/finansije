@@ -49,20 +49,14 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
   const fillHeight = Math.max(0, greenR * 2 * animMonth)
   const fillY = cy + greenR - fillHeight
 
-  // Text color: adapt to green fill level and current theme
-  // Green covers "days left" (y≈106) at ~33%, number (y≈85) at ~52%
   const isLight = document.documentElement.classList.contains('light')
-  const greenBehindNum = animMonth >= 0.52
-  const greenBehindSub = animMonth >= 0.32
 
-  // On green #22c55e: dark text in dark mode (green is bright vs dark bg), white in light mode (green is dark vs white bg)
-  const numColor = greenBehindNum
-    ? (isLight ? '#ffffff' : '#111827')
-    : 'var(--text-primary)'
-
-  const subColor = greenBehindSub
-    ? (isLight ? '#ffffff' : '#111827')
-    : (isLight ? 'var(--text-muted)' : '#ffffff')
+  // Split-color text: render each text twice with opposite colors + complementary clipPaths
+  // so the color changes exactly at the green fill boundary
+  const colorOnBg    = 'var(--text-primary)'              // white in dark, dark in light
+  const colorOnGreen = isLight ? '#ffffff' : '#111827'    // white in light (green darker than bg), dark in dark (green brighter than bg)
+  const subOnBg      = isLight ? 'var(--text-muted)' : '#ffffff'
+  const subOnGreen   = isLight ? '#ffffff' : '#111827'
 
   return (
     <button
@@ -74,6 +68,14 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
         <defs>
           <clipPath id="mpGreenClip">
             <rect x={cx - greenR} y={fillY} width={greenR * 2} height={fillHeight} />
+          </clipPath>
+          {/* Above green fill line — background color text */}
+          <clipPath id="mpAboveGreen">
+            <rect x={0} y={0} width={180} height={fillY} />
+          </clipPath>
+          {/* Below green fill line — on-green color text */}
+          <clipPath id="mpBelowGreen">
+            <rect x={0} y={fillY} width={180} height={180} />
           </clipPath>
         </defs>
 
@@ -111,13 +113,30 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
           transform={`rotate(-90 ${cx} ${cy})`}
         />
 
-        {/* Center text — color adapts to green fill level */}
+        {/* Number — above green (bg color) */}
         <text x={cx} y={cy - 5} textAnchor="middle"
-          fontSize="34" fontWeight="700" fill={numColor}>
+          fontSize="34" fontWeight="700" fill={colorOnBg}
+          clipPath="url(#mpAboveGreen)">
           {daysLeft}
         </text>
+        {/* Number — below green (on-green color) */}
+        <text x={cx} y={cy - 5} textAnchor="middle"
+          fontSize="34" fontWeight="700" fill={colorOnGreen}
+          clipPath="url(#mpBelowGreen)">
+          {daysLeft}
+        </text>
+
+        {/* "days left" — above green (bg color) */}
         <text x={cx} y={cy + 16} textAnchor="middle"
-          fontSize="9" fontWeight="600" fill={subColor}
+          fontSize="9" fontWeight="600" fill={subOnBg}
+          clipPath="url(#mpAboveGreen)"
+          style={{ textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+          days left
+        </text>
+        {/* "days left" — below green (on-green color) */}
+        <text x={cx} y={cy + 16} textAnchor="middle"
+          fontSize="9" fontWeight="600" fill={subOnGreen}
+          clipPath="url(#mpBelowGreen)"
           style={{ textTransform: 'uppercase', letterSpacing: '0.12em' }}>
           days left
         </text>
