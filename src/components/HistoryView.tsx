@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { MonthProfile, Transaction } from '../types'
 import { getRemaining, getSpentSoFar, fixedTotal } from '../utils/calc'
+import { useKeyboardOffset } from '../utils/useKeyboardOffset'
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -22,6 +23,13 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1)
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
 
+  const [addingTx, setAddingTx] = useState(false)
+  const [addType, setAddType] = useState<'expense' | 'income'>('expense')
+  const [addAmount, setAddAmount] = useState('')
+  const [addDesc, setAddDesc] = useState('')
+
+  const keyboardOffset = useKeyboardOffset()
+
   const swipeStartX = useRef(0)
   const swipeStartY = useRef(0)
 
@@ -39,11 +47,6 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
       onClose()
     }
   }
-
-  const [addingTx, setAddingTx] = useState(false)
-  const [addType, setAddType] = useState<'expense' | 'income'>('expense')
-  const [addAmount, setAddAmount] = useState('')
-  const [addDesc, setAddDesc] = useState('')
 
   useEffect(() => {
     if (!isOpen) {
@@ -186,29 +189,18 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
       {/* Summary bar */}
       {hasData && (
         <div className="flex-none px-4 pb-3 grid grid-cols-3 gap-2">
-          {/* Spent */}
-          <div
-            className="rounded-2xl px-2 py-2 text-center"
-            style={{ background: 'var(--card-red)', boxShadow: 'var(--card-red-shadow)' }}
-          >
+          <div className="rounded-2xl px-2 py-2 text-center" style={{ background: 'var(--card-red)', boxShadow: 'var(--card-red-shadow)' }}>
             <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Spent</div>
             <div className="text-sm font-bold" style={{ color: 'var(--clr-red)' }}>
               €{(getSpentSoFar(profile!) + fixedTotal(profile!)).toFixed(0)}
             </div>
           </div>
-
-          {/* Salary */}
-          <div
-            className="rounded-2xl px-2 py-2 text-center"
-            style={{ background: 'var(--card-blue)', boxShadow: 'var(--card-blue-shadow)' }}
-          >
+          <div className="rounded-2xl px-2 py-2 text-center" style={{ background: 'var(--card-blue)', boxShadow: 'var(--card-blue-shadow)' }}>
             <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Salary</div>
             <div className="text-sm font-bold" style={{ color: 'var(--clr-blue)' }}>
               €{profile!.salary.toFixed(0)}
             </div>
           </div>
-
-          {/* Saved */}
           <div
             className="rounded-2xl px-2 py-2 text-center"
             style={goalMet
@@ -217,10 +209,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             }
           >
             <div className="text-[10px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Saved</div>
-            <div
-              className="text-sm font-bold leading-tight"
-              style={goalMet ? { color: 'var(--clr-green)' } : { color: 'var(--clr-red)' }}
-            >
+            <div className="text-sm font-bold leading-tight" style={goalMet ? { color: 'var(--clr-green)' } : { color: 'var(--clr-red)' }}>
               €{actualSaved.toFixed(0)}
             </div>
             {!goalMet && profile!.savingsGoal > 0 && (
@@ -274,22 +263,17 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
         })}
       </div>
 
-      {/* Backdrop — closes add form when tapping outside */}
-      {addingTx && (
-        <div className="absolute inset-0 z-10" onClick={closeAddForm} />
-      )}
-
       {/* Selected day panel */}
       {selectedDay && (
         <div
           className="flex-1 min-h-0 overflow-y-auto scrollbar-none mt-3 px-5"
-          onClick={() => { if (!addingTx) setSelectedDay(null) }}
+          onClick={() => setSelectedDay(null)}
         >
           <div className="flex items-center justify-between mb-2" onClick={e => e.stopPropagation()}>
             <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'var(--text-muted)' }}>
               {selectedDay} {MON_SHORT[viewMonth - 1]}
             </p>
-            {profile && !addingTx && (
+            {profile && (
               <button
                 onClick={() => setAddingTx(true)}
                 className="w-6 h-6 rounded-full bg-white/10 text-gray-400 text-[14px] flex items-center justify-center active:bg-white/20"
@@ -300,7 +284,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             )}
           </div>
 
-          {selTxs.length === 0 && !addingTx && (
+          {selTxs.length === 0 && (
             <p className="text-sm text-center py-4" style={{ color: 'var(--text-faint)' }}>No transactions</p>
           )}
           {selTxs.length > 0 && (
@@ -318,16 +302,36 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
               ))}
             </div>
           )}
+        </div>
+      )}
 
-          {addingTx && (
-            <div className="rounded-2xl p-4 mt-2 space-y-3 relative z-20" style={{ backgroundColor: 'var(--surface)' }} onClick={e => e.stopPropagation()}>
+      {!selectedDay && <div className="flex-1" />}
+
+      {/* Add form — floating bottom sheet above keyboard */}
+      {addingTx && (
+        <>
+          <div className="absolute inset-0 z-50 bg-black/60 animate-fade-in" onClick={closeAddForm} />
+          <div
+            className="absolute left-0 right-0 z-50 rounded-t-[28px] animate-slide-up overflow-hidden flex flex-col"
+            style={{
+              backgroundColor: 'var(--surface)',
+              bottom: keyboardOffset,
+              paddingBottom: keyboardOffset > 0 ? '8px' : 'calc(env(safe-area-inset-bottom) + 8px)',
+              maxHeight: `calc(100vh - ${keyboardOffset}px - 40px)`,
+            }}
+          >
+            <div className="flex justify-center pt-3 pb-2 flex-none">
+              <div className="w-9 h-1 rounded-full" style={{ backgroundColor: 'var(--surface-handle)' }} />
+            </div>
+
+            <div className="px-5 pb-4 space-y-3">
               <div className="flex gap-2">
                 <button
                   onClick={() => setAddType('expense')}
                   className="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
                   style={addType === 'expense'
                     ? { background: 'var(--card-red)', color: 'var(--clr-red)' }
-                    : { background: 'var(--cal-neutral-bg)', color: '#4b5563' }
+                    : { backgroundColor: 'var(--surface-hover)', color: 'var(--text-muted)' }
                   }
                 >
                   Expense
@@ -337,34 +341,36 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                   className="flex-1 py-2 rounded-xl text-xs font-semibold transition-colors"
                   style={addType === 'income'
                     ? { background: 'var(--card-green)', color: 'var(--clr-green)' }
-                    : { background: 'var(--cal-neutral-bg)', color: '#4b5563' }
+                    : { backgroundColor: 'var(--surface-hover)', color: 'var(--text-muted)' }
                   }
                 >
                   Income
                 </button>
               </div>
 
-              <div className="rounded-xl px-3 py-2.5 flex items-center gap-2" style={{ backgroundColor: 'var(--surface-input)' }}>
-                <span className="text-sm font-medium" style={{ color: addType === 'expense' ? 'var(--clr-red)' : 'var(--clr-green)' }}>€</span>
+              <div className="rounded-2xl px-4 py-3 flex items-center gap-2" style={{ backgroundColor: 'var(--surface-input)' }}>
+                <span className="text-base font-medium" style={{ color: addType === 'expense' ? 'var(--clr-red)' : 'var(--clr-green)' }}>€</span>
                 <input
                   type="number"
                   inputMode="decimal"
                   value={addAmount}
                   onChange={e => setAddAmount(e.target.value)}
                   placeholder="0.00"
-                  className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-gray-700"
+                  className="flex-1 bg-transparent text-base outline-none placeholder:text-gray-500"
+                  style={{ color: 'var(--text-primary)' }}
                   autoFocus
                   onKeyDown={handleAddFormKey}
                 />
               </div>
 
-              <div className="rounded-xl px-3 py-2.5" style={{ backgroundColor: 'var(--surface-input)' }}>
+              <div className="rounded-2xl px-4 py-3" style={{ backgroundColor: 'var(--surface-input)' }}>
                 <input
                   type="text"
                   value={addDesc}
                   onChange={e => setAddDesc(e.target.value)}
                   placeholder="Description"
-                  className="w-full bg-transparent text-white text-sm outline-none placeholder:text-gray-700"
+                  className="w-full bg-transparent text-base outline-none placeholder:text-gray-500"
+                  style={{ color: 'var(--text-primary)' }}
                   onKeyDown={handleAddFormKey}
                 />
               </div>
@@ -372,13 +378,14 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
               <div className="flex gap-2">
                 <button
                   onClick={closeAddForm}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-medium active:opacity-60" style={{ backgroundColor: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
+                  className="flex-1 py-3.5 rounded-2xl text-sm font-medium active:opacity-60"
+                  style={{ backgroundColor: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={submitAdd}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold active:opacity-70"
+                  className="flex-1 py-3.5 rounded-2xl text-sm font-semibold active:opacity-70 transition-opacity"
                   style={addType === 'expense'
                     ? { background: 'var(--card-red)', color: 'var(--clr-red)' }
                     : { background: 'var(--card-green)', color: 'var(--clr-green)' }
@@ -388,11 +395,9 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                 </button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        </>
       )}
-
-      {!selectedDay && <div className="flex-1" />}
     </div>
   )
 }
