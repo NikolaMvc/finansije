@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import type { MonthProfile, Transaction } from '../types'
-import { getRemaining, getDailyBudget, getTodayBudget, getStartDailyBudget, incomeTotal, expensesTotal } from '../utils/calc'
+import { getRemaining, getDailyBudget, getTodayBudget, getStartDailyBudget, incomeTotal, expensesTotal, fixedTotal } from '../utils/calc'
 import { useCountUp } from '../utils/useCountUp'
 import MonthProgressCircle from './MonthProgressCircle'
 
@@ -85,6 +85,12 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
   const daysPassed = isCurrentMonth ? now.getDate() : daysInMonth
   const daysLeft = Math.max(0, daysInMonth - daysPassed)
   const monthProgress = daysPassed / daysInMonth
+
+  // Spending progress vs allowed budget
+  const totalSpendable = Math.max(0, profile.salary - profile.savingsGoal - fixedTotal(profile))
+  const allowedToday = daysInMonth > 0 ? (totalSpendable / daysInMonth) * daysPassed : 0
+  const netSpent = Math.max(0, expensesTotal(profile) - incomeTotal(profile))
+  const spentProgress = allowedToday > 0 ? Math.min(1, netSpent / allowedToday) : 0
 
   return (
     <div
@@ -247,6 +253,7 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
         <div className="flex-1 flex items-center justify-center">
           <MonthProgressCircle
             progress={monthProgress}
+            spentProgress={spentProgress}
             daysLeft={daysLeft}
             daysPassed={daysPassed}
             daysInMonth={daysInMonth}
@@ -327,21 +334,27 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
           >
             <div className="space-y-3">
               <div className="flex items-start gap-3">
-                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: 'var(--clr-blue)' }} />
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: '#3b82f6' }} />
                 <span className="text-sm leading-snug" style={{ color: 'var(--text-secondary)' }}>
                   Blue ring — days passed this month ({daysPassed} of {daysInMonth})
                 </span>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: 'var(--clr-green)' }} />
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: '#ef4444' }} />
                 <span className="text-sm leading-snug" style={{ color: 'var(--text-secondary)' }}>
-                  Green fill — same progress, fills from bottom up as the month goes on
+                  Red ring — money spent vs. what you're allowed to spend by today to hit your savings goal
+                </span>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: '#10b981' }} />
+                <span className="text-sm leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                  Green fill — fills from bottom up as the month progresses
                 </span>
               </div>
               <div className="flex items-start gap-3">
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5 border" style={{ backgroundColor: 'var(--surface-hover)', borderColor: 'var(--surface-border)' }} />
                 <span className="text-sm leading-snug" style={{ color: 'var(--text-secondary)' }}>
-                  Number — days remaining until end of month ({daysLeft} left)
+                  Number — days remaining this month ({daysLeft} left)
                 </span>
               </div>
             </div>
