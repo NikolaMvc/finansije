@@ -246,6 +246,14 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
         })}
       </div>
 
+      {/* Backdrop — closes add form when tapping outside */}
+      {addingTx && (
+        <div
+          className="absolute inset-0 z-10"
+          onClick={() => { setAddingTx(false); setAddAmount(''); setAddDesc('') }}
+        />
+      )}
+
       {/* Selected day panel */}
       {selectedDay && (
         <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none mt-3 px-5">
@@ -284,7 +292,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
           )}
 
           {addingTx && (
-            <div className="rounded-2xl p-4 mt-2 space-y-3" style={{ backgroundColor: 'var(--surface)' }}>
+            <div className="rounded-2xl p-4 mt-2 space-y-3 relative z-20" style={{ backgroundColor: 'var(--surface)' }}>
               <div className="flex gap-2">
                 <button
                   onClick={() => setAddType('expense')}
