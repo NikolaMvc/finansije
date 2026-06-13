@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { MonthProfile, Transaction } from '../types'
 import { getRemaining, getSpentSoFar, fixedTotal } from '../utils/calc'
 
@@ -21,6 +21,21 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   const [viewYear, setViewYear] = useState(now.getFullYear())
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1)
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
+
+  const swipeStartX = useRef(0)
+  const swipeStartY = useRef(0)
+
+  function handleTouchStart(e: React.TouchEvent) {
+    swipeStartX.current = e.touches[0].clientX
+    swipeStartY.current = e.touches[0].clientY
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    const dx = e.changedTouches[0].clientX - swipeStartX.current
+    const dy = e.changedTouches[0].clientY - swipeStartY.current
+    if (Math.abs(dy) > Math.abs(dx)) return
+    if (dx > 60) onClose()
+  }
 
   const [addingTx, setAddingTx] = useState(false)
   const [addType, setAddType] = useState<'expense' | 'income'>('expense')
@@ -117,6 +132,8 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   return (
     <div
       className="absolute inset-0 z-40 flex flex-col overflow-hidden animate-slide-in-right"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
       style={{
         background: 'var(--bg-gradient)',
         backgroundColor: 'var(--bg-solid)',
