@@ -49,10 +49,20 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
   const fillHeight = Math.max(0, greenR * 2 * animMonth)
   const fillY = cy + greenR - fillHeight
 
-  // Text color: white when green covers the center area, theme color otherwise
-  // Green covers "days left" (y≈106) at ~33%, number (y≈85) at ~55%
-  const numColor    = animMonth >= 0.52 ? '#ffffff' : 'var(--text-primary)'
-  const subColor    = animMonth >= 0.32 ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)'
+  // Text color: adapt to green fill level and current theme
+  // Green covers "days left" (y≈106) at ~33%, number (y≈85) at ~52%
+  const isLight = document.documentElement.classList.contains('light')
+  const greenBehindNum = animMonth >= 0.52
+  const greenBehindSub = animMonth >= 0.32
+
+  // On green #22c55e: dark text in dark mode (green is bright vs dark bg), white in light mode (green is dark vs white bg)
+  const numColor = greenBehindNum
+    ? (isLight ? '#ffffff' : '#111827')
+    : 'var(--text-primary)'
+
+  const subColor = greenBehindSub
+    ? (isLight ? '#ffffff' : '#111827')
+    : (isLight ? 'var(--text-muted)' : '#ffffff')
 
   return (
     <button
