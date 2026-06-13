@@ -34,7 +34,10 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
     const dx = e.changedTouches[0].clientX - swipeStartX.current
     const dy = e.changedTouches[0].clientY - swipeStartY.current
     if (Math.abs(dy) > Math.abs(dx)) return
-    if (dx > 60) onClose()
+    if (dx > 60) {
+      e.stopPropagation()
+      onClose()
+    }
   }
 
   const [addingTx, setAddingTx] = useState(false)
