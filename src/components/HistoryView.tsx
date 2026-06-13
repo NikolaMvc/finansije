@@ -37,6 +37,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   const isDragging = useRef(false)
 
   function handleTouchStart(e: React.TouchEvent) {
+    e.stopPropagation()
     if (addingTx) return
     swipeStartX.current = e.touches[0].clientX
     swipeStartY.current = e.touches[0].clientY
@@ -45,6 +46,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
   }
 
   function handleTouchMove(e: React.TouchEvent) {
+    e.stopPropagation()
     if (addingTx) return
     const dx = e.touches[0].clientX - swipeStartX.current
     const dy = e.touches[0].clientY - swipeStartY.current
