@@ -86,11 +86,10 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
   const daysLeft = Math.max(0, daysInMonth - daysPassed)
   const monthProgress = daysPassed / daysInMonth
 
-  // Spending progress vs allowed budget
+  // Spending progress: how much of total monthly budget has been spent
   const totalSpendable = Math.max(0, profile.salary - profile.savingsGoal - fixedTotal(profile))
-  const allowedToday = daysInMonth > 0 ? (totalSpendable / daysInMonth) * daysPassed : 0
   const netSpent = Math.max(0, expensesTotal(profile) - incomeTotal(profile))
-  const spentProgress = allowedToday > 0 ? Math.min(1, netSpent / allowedToday) : 0
+  const spentProgress = totalSpendable > 0 ? Math.min(1, netSpent / totalSpendable) : 0
 
   return (
     <div
