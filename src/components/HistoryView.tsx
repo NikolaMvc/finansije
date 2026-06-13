@@ -72,8 +72,14 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
     isDragging.current = false
     e.stopPropagation()
 
-    const offset = dragOffsetX.current
+    const finalDx = e.changedTouches[0].clientX - swipeStartX.current
+    const offset = Math.max(0, finalDx)
     dragOffsetX.current = 0
+
+    if (containerRef.current) {
+      containerRef.current.style.transform = `translateX(${offset}px)`
+    }
+
     const threshold = window.innerWidth * 0.10
 
     if (offset > threshold) {

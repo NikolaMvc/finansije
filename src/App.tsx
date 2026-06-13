@@ -120,27 +120,35 @@ export default function App() {
     if (!isDragging.current) return
     isDragging.current = false
 
-    const offset = dragOffset.current
+    const finalDx = e.changedTouches[0].clientX - dragStartX.current
     dragOffset.current = 0
     const threshold = MENU_WIDTH * 0.25
 
     const panel = menuPanelRef.current
     const bd = backdropRef.current
 
-    if (!menuOpen && offset > threshold) {
-      if (panel) { panel.style.transition = 'transform 0.26s cubic-bezier(0.32, 0.72, 0, 1)'; panel.style.transform = 'translateX(0)' }
-      if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0.65' }
-      setMenuOpen(true)
-    } else if (!menuOpen) {
-      if (panel) { panel.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'; panel.style.transform = `translateX(-${MENU_WIDTH}px)` }
-      if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0' }
-    } else if (menuOpen && offset > threshold) {
-      if (panel) { panel.style.transition = 'transform 0.26s cubic-bezier(0.32, 0.72, 0, 1)'; panel.style.transform = `translateX(-${MENU_WIDTH}px)` }
-      if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0' }
-      setTimeout(() => setMenuOpen(false), 260)
+    if (!menuOpen) {
+      const offset = Math.min(MENU_WIDTH, Math.max(0, finalDx))
+      if (panel) panel.style.transform = `translateX(${offset - MENU_WIDTH}px)`
+      if (offset > threshold) {
+        if (panel) { panel.style.transition = 'transform 0.26s cubic-bezier(0.32, 0.72, 0, 1)'; panel.style.transform = 'translateX(0)' }
+        if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0.65' }
+        setMenuOpen(true)
+      } else {
+        if (panel) { panel.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'; panel.style.transform = `translateX(-${MENU_WIDTH}px)` }
+        if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0' }
+      }
     } else {
-      if (panel) { panel.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'; panel.style.transform = 'translateX(0)' }
-      if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0.65' }
+      const offset = Math.min(MENU_WIDTH, Math.max(0, -finalDx))
+      if (panel) panel.style.transform = `translateX(-${offset}px)`
+      if (offset > threshold) {
+        if (panel) { panel.style.transition = 'transform 0.26s cubic-bezier(0.32, 0.72, 0, 1)'; panel.style.transform = `translateX(-${MENU_WIDTH}px)` }
+        if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0' }
+        setTimeout(() => setMenuOpen(false), 260)
+      } else {
+        if (panel) { panel.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'; panel.style.transform = 'translateX(0)' }
+        if (bd) { bd.style.transition = 'opacity 0.2s ease'; bd.style.opacity = '0.65' }
+      }
     }
   }
 
