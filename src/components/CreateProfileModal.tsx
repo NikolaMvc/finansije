@@ -18,6 +18,8 @@ export default function CreateProfileModal({ isOpen, onConfirm, onClose }: Props
   if (!isOpen) return null
 
   function handleConfirm() {
+    // Dismiss the keyboard before swapping modals — prevents an iOS focus-transition freeze
+    ;(document.activeElement as HTMLElement | null)?.blur()
     onConfirm(name.trim() || 'Profile')
     setName('')
   }

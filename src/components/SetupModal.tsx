@@ -102,7 +102,6 @@ export default function SetupModal({ isOpen, year, month, existingTransactions, 
               placeholder="0.00"
               className="flex-1 bg-transparent text-lg outline-none placeholder:text-gray-500"
               style={{ color: 'var(--text-primary)' }}
-              autoFocus
             />
           </div>
         </div>
