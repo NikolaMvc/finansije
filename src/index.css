@@ -16,6 +16,7 @@
   --card-red-shadow: 0 0 28px rgba(248,113,113,0.14), 0 4px 20px rgba(0,0,0,0.55);
   --clr-yellow: #fbbf24;
   --clr-green: #34d399;
+  --clr-green-btn-text: #000000;
   --clr-blue: #38bdf8;
   --clr-red: #f87171;
   --text-primary: #ffffff;
@@ -47,6 +48,7 @@ html.light {
   --card-red-shadow: 0 2px 16px rgba(220,38,38,0.15), 0 1px 4px rgba(0,0,0,0.06);
   --clr-yellow: #b45309;
   --clr-green: #047857;
+  --clr-green-btn-text: #ffffff;
   --clr-blue: #1d4ed8;
   --clr-red: #b91c1c;
   --text-primary: #111827;

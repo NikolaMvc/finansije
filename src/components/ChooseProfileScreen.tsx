@@ -139,8 +139,8 @@ export default function ChooseProfileScreen({ profiles, onSelect, onCreateNew, o
       >
         <button
           onClick={onCreateNew}
-          className="w-full py-4 rounded-[20px] text-white font-bold text-base tracking-wide active:opacity-80 transition-opacity"
-          style={{ backgroundColor: 'var(--clr-green)', boxShadow: '0 0 28px rgba(52,211,153,0.25)' }}
+          className="w-full py-4 rounded-[20px] font-bold text-base tracking-wide active:opacity-80 transition-opacity"
+          style={{ backgroundColor: 'var(--clr-green)', color: 'var(--clr-green-btn-text)', boxShadow: '0 0 28px rgba(52,211,153,0.25)' }}
         >
           + Create new profile
         </button>
