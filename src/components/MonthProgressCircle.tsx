@@ -57,7 +57,7 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
   // Light mode: dark on light bg → white on medium-dark green
   const numAbove = isLight ? '#111827' : '#ffffff'
   const numBelow = isLight ? '#ffffff' : '#111827'
-  const subAbove = isLight ? '#6b7280' : '#ffffff'
+  const subAbove = isLight ? '#111827' : '#ffffff'
   const subBelow = isLight ? '#ffffff' : '#111827'
 
   // Gradient stop offset (0–1) at the green fill boundary
