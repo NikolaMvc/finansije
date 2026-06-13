@@ -84,19 +84,27 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
     setAddDesc('')
   }
 
+  function closeAddForm() {
+    setAddingTx(false)
+    setAddAmount('')
+    setAddDesc('')
+  }
+
   function submitAdd() {
     if (!selectedDay) return
     const amount = parseFloat(addAmount)
-    if (!amount || amount <= 0) return
+    if (!amount || amount <= 0) { closeAddForm(); return }
     onAddTxToMonth(key, {
       amount: addType === 'expense' ? -amount : amount,
       description: addDesc.trim() || (addType === 'expense' ? 'Expense' : 'Income'),
       date: dateStr(selectedDay),
       type: addType,
     })
-    setAddAmount('')
-    setAddDesc('')
-    setAddingTx(false)
+    closeAddForm()
+  }
+
+  function handleAddFormKey(e: React.KeyboardEvent) {
+    if (e.key === 'Enter') submitAdd()
   }
 
   const firstDow = new Date(viewYear, viewMonth - 1, 1).getDay()
@@ -265,16 +273,16 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
 
       {/* Backdrop — closes add form when tapping outside */}
       {addingTx && (
-        <div
-          className="absolute inset-0 z-10"
-          onClick={() => { setAddingTx(false); setAddAmount(''); setAddDesc('') }}
-        />
+        <div className="absolute inset-0 z-10" onClick={closeAddForm} />
       )}
 
       {/* Selected day panel */}
       {selectedDay && (
-        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none mt-3 px-5">
-          <div className="flex items-center justify-between mb-2">
+        <div
+          className="flex-1 min-h-0 overflow-y-auto scrollbar-none mt-3 px-5"
+          onClick={() => { if (!addingTx) setSelectedDay(null) }}
+        >
+          <div className="flex items-center justify-between mb-2" onClick={e => e.stopPropagation()}>
             <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: 'var(--text-muted)' }}>
               {selectedDay} {MON_SHORT[viewMonth - 1]}
             </p>
@@ -293,7 +301,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             <p className="text-sm text-center py-4" style={{ color: 'var(--text-faint)' }}>No transactions</p>
           )}
           {selTxs.length > 0 && (
-            <div className="space-y-px mb-3">
+            <div className="space-y-px mb-3" onClick={e => e.stopPropagation()}>
               {selTxs.map(tx => (
                 <div key={tx.id} className="flex items-center py-2.5 border-b border-white/5">
                   <span
@@ -309,7 +317,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
           )}
 
           {addingTx && (
-            <div className="rounded-2xl p-4 mt-2 space-y-3 relative z-20" style={{ backgroundColor: 'var(--surface)' }}>
+            <div className="rounded-2xl p-4 mt-2 space-y-3 relative z-20" style={{ backgroundColor: 'var(--surface)' }} onClick={e => e.stopPropagation()}>
               <div className="flex gap-2">
                 <button
                   onClick={() => setAddType('expense')}
@@ -343,6 +351,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                   placeholder="0.00"
                   className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-gray-700"
                   autoFocus
+                  onKeyDown={handleAddFormKey}
                 />
               </div>
 
@@ -353,13 +362,13 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
                   onChange={e => setAddDesc(e.target.value)}
                   placeholder="Description"
                   className="w-full bg-transparent text-white text-sm outline-none placeholder:text-gray-700"
-                  onKeyDown={e => e.key === 'Enter' && submitAdd()}
+                  onKeyDown={handleAddFormKey}
                 />
               </div>
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => { setAddingTx(false); setAddAmount(''); setAddDesc('') }}
+                  onClick={closeAddForm}
                   className="flex-1 py-2.5 rounded-xl text-sm font-medium active:opacity-60" style={{ backgroundColor: 'var(--surface-hover)', color: 'var(--text-secondary)' }}
                 >
                   Cancel
