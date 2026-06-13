@@ -38,6 +38,7 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
   const blueR = 80,  blueStroke = 10
   const redR  = 63,  redStroke  = 10
   const greenR = 46
+  const viewH = 180
 
   const blueCirc = 2 * Math.PI * blueR
   const redCirc  = 2 * Math.PI * redR
@@ -51,12 +52,16 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
 
   const isLight = document.documentElement.classList.contains('light')
 
-  // Split-color text: render each text twice with opposite colors + complementary clipPaths
-  // so the color changes exactly at the green fill boundary
-  const colorOnBg    = 'var(--text-primary)'              // white in dark, dark in light
-  const colorOnGreen = isLight ? '#ffffff' : '#111827'    // white in light (green darker than bg), dark in dark (green brighter than bg)
-  const subOnBg      = isLight ? 'var(--text-muted)' : '#ffffff'
-  const subOnGreen   = isLight ? '#ffffff' : '#111827'
+  // Text colors: above green line vs below (on green)
+  // Dark mode: white on dark bg → black on bright green
+  // Light mode: dark on light bg → white on medium-dark green
+  const numAbove = isLight ? '#111827' : '#ffffff'
+  const numBelow = isLight ? '#ffffff' : '#111827'
+  const subAbove = isLight ? '#6b7280' : '#ffffff'
+  const subBelow = isLight ? '#ffffff' : '#111827'
+
+  // Gradient stop offset (0–1) at the green fill boundary
+  const edgeOffset = fillY / viewH
 
   return (
     <button
@@ -64,19 +69,27 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
       className="active:opacity-70 transition-opacity"
       aria-label="Month progress"
     >
-      <svg viewBox="0 0 180 180" width="176" height="176">
+      <svg viewBox={`0 0 180 ${viewH}`} width="176" height="176">
         <defs>
           <clipPath id="mpGreenClip">
             <rect x={cx - greenR} y={fillY} width={greenR * 2} height={fillHeight} />
           </clipPath>
-          {/* Above green fill line — background color text */}
-          <clipPath id="mpAboveGreen">
-            <rect x={0} y={0} width={180} height={fillY} />
-          </clipPath>
-          {/* Below green fill line — on-green color text */}
-          <clipPath id="mpBelowGreen">
-            <rect x={0} y={fillY} width={180} height={180} />
-          </clipPath>
+
+          {/* Hard-edge gradient for number text: colorAbove until fillY, colorBelow after */}
+          <linearGradient id="mpNumGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={viewH}>
+            <stop offset={0} stopColor={numAbove} />
+            <stop offset={edgeOffset} stopColor={numAbove} />
+            <stop offset={edgeOffset} stopColor={numBelow} />
+            <stop offset={1} stopColor={numBelow} />
+          </linearGradient>
+
+          {/* Hard-edge gradient for subtext */}
+          <linearGradient id="mpSubGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={viewH}>
+            <stop offset={0} stopColor={subAbove} />
+            <stop offset={edgeOffset} stopColor={subAbove} />
+            <stop offset={edgeOffset} stopColor={subBelow} />
+            <stop offset={1} stopColor={subBelow} />
+          </linearGradient>
         </defs>
 
         {/* Track: blue outer */}
@@ -113,30 +126,15 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
           transform={`rotate(-90 ${cx} ${cy})`}
         />
 
-        {/* Number — above green (bg color) */}
+        {/* Number — gradient fill changes exactly at green boundary */}
         <text x={cx} y={cy - 5} textAnchor="middle"
-          fontSize="34" fontWeight="700" fill={colorOnBg}
-          clipPath="url(#mpAboveGreen)">
-          {daysLeft}
-        </text>
-        {/* Number — below green (on-green color) */}
-        <text x={cx} y={cy - 5} textAnchor="middle"
-          fontSize="34" fontWeight="700" fill={colorOnGreen}
-          clipPath="url(#mpBelowGreen)">
+          fontSize="34" fontWeight="700" fill="url(#mpNumGrad)">
           {daysLeft}
         </text>
 
-        {/* "days left" — above green (bg color) */}
+        {/* "days left" — same gradient approach */}
         <text x={cx} y={cy + 16} textAnchor="middle"
-          fontSize="9" fontWeight="600" fill={subOnBg}
-          clipPath="url(#mpAboveGreen)"
-          style={{ textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-          days left
-        </text>
-        {/* "days left" — below green (on-green color) */}
-        <text x={cx} y={cy + 16} textAnchor="middle"
-          fontSize="9" fontWeight="600" fill={subOnGreen}
-          clipPath="url(#mpBelowGreen)"
+          fontSize="9" fontWeight="600" fill="url(#mpSubGrad)"
           style={{ textTransform: 'uppercase', letterSpacing: '0.12em' }}>
           days left
         </text>
