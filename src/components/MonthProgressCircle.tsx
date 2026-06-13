@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 
 interface Props {
-  progress: number       // 0–1, days passed / days in month
-  spentProgress: number  // 0–1, spent so far / allowed to spend so far
+  progress: number
+  spentProgress: number
   daysLeft: number
   daysPassed: number
   daysInMonth: number
@@ -34,12 +34,10 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
   const animMonth = useAnimatedValue(progress, 1200)
   const animSpent = useAnimatedValue(spentProgress, 1400)
 
-  // Layout: cx=cy=90, viewBox 180x180
   const cx = 90, cy = 90
-  const blueR = 80,   blueStroke = 10   // outer blue ring
-  const redR  = 63,   redStroke  = 10   // middle red ring
-  const greenR = 46                      // inner green fill
-  const centerR = 29                     // always-visible center backdrop
+  const blueR = 80,  blueStroke = 10
+  const redR  = 63,  redStroke  = 10
+  const greenR = 46
 
   const blueCirc = 2 * Math.PI * blueR
   const redCirc  = 2 * Math.PI * redR
@@ -50,6 +48,11 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
   // Green fill: bottom to top
   const fillHeight = Math.max(0, greenR * 2 * animMonth)
   const fillY = cy + greenR - fillHeight
+
+  // Text color: white when green covers the center area, theme color otherwise
+  // Green covers "days left" (y≈106) at ~33%, number (y≈85) at ~55%
+  const numColor    = animMonth >= 0.52 ? '#ffffff' : 'var(--text-primary)'
+  const subColor    = animMonth >= 0.32 ? 'rgba(255,255,255,0.85)' : 'var(--text-muted)'
 
   return (
     <button
@@ -75,13 +78,10 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
         {/* Inner circle background */}
         <circle cx={cx} cy={cy} r={greenR} fill="var(--surface)" />
 
-        {/* Green fill — bottom to top */}
+        {/* Green fill — bottom to top, solid */}
         <circle cx={cx} cy={cy} r={greenR}
-          fill="#10b981"
+          fill="#22c55e"
           clipPath="url(#mpGreenClip)" />
-
-        {/* Center backdrop so text is always readable */}
-        <circle cx={cx} cy={cy} r={centerR} fill="var(--surface)" />
 
         {/* Red middle progress ring */}
         <circle cx={cx} cy={cy} r={redR} fill="none"
@@ -101,13 +101,13 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
           transform={`rotate(-90 ${cx} ${cy})`}
         />
 
-        {/* Center text */}
+        {/* Center text — color adapts to green fill level */}
         <text x={cx} y={cy - 5} textAnchor="middle"
-          fontSize="34" fontWeight="700" fill="var(--text-primary)">
+          fontSize="34" fontWeight="700" fill={numColor}>
           {daysLeft}
         </text>
         <text x={cx} y={cy + 16} textAnchor="middle"
-          fontSize="9" fontWeight="600" fill="var(--text-muted)"
+          fontSize="9" fontWeight="600" fill={subColor}
           style={{ textTransform: 'uppercase', letterSpacing: '0.12em' }}>
           days left
         </text>
