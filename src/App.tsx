@@ -188,7 +188,9 @@ export default function App() {
 
   // ── Swipe carousel between tabs (History | Dashboard | Statistics) ──
   const activeIndex = TAB_ORDER.indexOf(tab)
-  const trackRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement | null>(null)
+  const liveIndex = useRef(activeIndex)
+  liveIndex.current = activeIndex
   const tabStartX = useRef(0)
   const tabStartY = useRef(0)
   const tabWidth = useRef(0)
@@ -198,15 +200,26 @@ export default function App() {
   const tabVelT = useRef(0)
   const prevTabIndex = useRef(activeIndex)
 
+  // Position the track the moment it mounts (entering the dashboard mounts it after
+  // the screen transition, so an effect alone would run before the track exists)
+  const attachTrack = useCallback((el: HTMLDivElement | null) => {
+    trackRef.current = el
+    if (el) {
+      el.style.transition = 'none'
+      el.style.transform = `translateX(-${liveIndex.current * (100 / 3)}%)`
+      prevTabIndex.current = liveIndex.current
+    }
+  }, [])
+
   useLayoutEffect(() => {
     const t = trackRef.current
     if (!t || tabDragging.current) { prevTabIndex.current = activeIndex; return }
-    // Animate only on an actual tab switch; jump instantly on mount / screen / profile change
+    // Animate only on an actual tab switch
     const animate = prevTabIndex.current !== activeIndex
     t.style.transition = animate ? 'transform 0.32s cubic-bezier(0.32, 0.72, 0, 1)' : 'none'
     t.style.transform = `translateX(-${activeIndex * (100 / 3)}%)`
     prevTabIndex.current = activeIndex
-  }, [activeIndex, screen, activeProfileId])
+  }, [activeIndex])
 
   function tabTouchStart(e: React.TouchEvent) {
     tabStartX.current = e.touches[0].clientX
@@ -511,7 +524,7 @@ export default function App() {
               onTouchMove={tabTouchMove}
               onTouchEnd={tabTouchEnd}
             >
-              <div ref={trackRef} className="flex h-full" style={{ width: '300%' }}>
+              <div ref={attachTrack} className="flex h-full" style={{ width: '300%' }}>
                 <div className="h-full flex-shrink-0" style={{ width: '33.3333%' }}>
                   <HistoryView
                     isOpen
