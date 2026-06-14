@@ -52,15 +52,8 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
 
   const isLight = document.documentElement.classList.contains('light')
 
-  // Text colors: above green line vs below (on green)
-  // Dark mode: white on dark bg → black on bright green
-  // Light mode: dark on light bg → white on medium-dark green
-  // Yellow on the surface (matches the Remaining card); dark where the green fill is behind it (stays readable)
-  const numAbove = isLight ? '#d97706' : '#fcd34d'
-  const numBelow = '#111827'
-
-  // Gradient stop offset (0–1) at the green fill boundary
-  const edgeOffset = fillY / viewH
+  // Number color — same yellow as the Remaining / Daily Budget cards
+  const numColor = isLight ? '#d97706' : '#fcd34d'
 
   return (
     <button
@@ -73,14 +66,6 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
           <clipPath id="mpGreenClip">
             <rect x={cx - greenR} y={fillY} width={greenR * 2} height={fillHeight} />
           </clipPath>
-
-          {/* Hard-edge gradient for number text: colorAbove until fillY, colorBelow after */}
-          <linearGradient id="mpNumGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={viewH}>
-            <stop offset={0} stopColor={numAbove} />
-            <stop offset={edgeOffset} stopColor={numAbove} />
-            <stop offset={edgeOffset} stopColor={numBelow} />
-            <stop offset={1} stopColor={numBelow} />
-          </linearGradient>
         </defs>
 
         {/* Track: blue outer */}
@@ -117,9 +102,9 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
           transform={`rotate(-90 ${cx} ${cy})`}
         />
 
-        {/* Number — centered, gradient fill changes exactly at green boundary */}
+        {/* Number — centered, yellow like the Remaining card */}
         <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
-          fontSize="34" fontWeight="700" fill="url(#mpNumGrad)">
+          fontSize="34" fontWeight="700" fill={numColor}>
           {daysLeft}
         </text>
       </svg>
