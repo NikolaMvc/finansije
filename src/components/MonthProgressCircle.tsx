@@ -57,8 +57,6 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
   // Light mode: dark on light bg → white on medium-dark green
   const numAbove = isLight ? '#111827' : '#ffffff'
   const numBelow = isLight ? '#ffffff' : '#111827'
-  const subAbove = isLight ? '#111827' : '#ffffff'
-  const subBelow = isLight ? '#ffffff' : '#111827'
 
   // Gradient stop offset (0–1) at the green fill boundary
   const edgeOffset = fillY / viewH
@@ -81,14 +79,6 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
             <stop offset={edgeOffset} stopColor={numAbove} />
             <stop offset={edgeOffset} stopColor={numBelow} />
             <stop offset={1} stopColor={numBelow} />
-          </linearGradient>
-
-          {/* Hard-edge gradient for subtext */}
-          <linearGradient id="mpSubGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={viewH}>
-            <stop offset={0} stopColor={subAbove} />
-            <stop offset={edgeOffset} stopColor={subAbove} />
-            <stop offset={edgeOffset} stopColor={subBelow} />
-            <stop offset={1} stopColor={subBelow} />
           </linearGradient>
         </defs>
 
@@ -126,17 +116,10 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
           transform={`rotate(-90 ${cx} ${cy})`}
         />
 
-        {/* Number — gradient fill changes exactly at green boundary */}
-        <text x={cx} y={cy - 5} textAnchor="middle"
+        {/* Number — centered, gradient fill changes exactly at green boundary */}
+        <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
           fontSize="34" fontWeight="700" fill="url(#mpNumGrad)">
           {daysLeft}
-        </text>
-
-        {/* "days left" — same gradient approach */}
-        <text x={cx} y={cy + 16} textAnchor="middle"
-          fontSize="9" fontWeight="600" fill="url(#mpSubGrad)"
-          style={{ textTransform: 'uppercase', letterSpacing: '0.12em' }}>
-          days left
         </text>
       </svg>
     </button>
