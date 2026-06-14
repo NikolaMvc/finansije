@@ -96,6 +96,21 @@ export default function BottomNav({ active, onHistory, onCenter, onStatistics }:
           </button>
         </div>
 
+        {/* Glass cradle (dome) behind the + so the area around it is glass, not black */}
+        <div
+          className="absolute"
+          style={{
+            width: 86, height: 54, top: -24, left: '50%', transform: 'translateX(-50%)',
+            background: 'var(--nav-bg)',
+            borderTopLeftRadius: 43, borderTopRightRadius: 43,
+            borderTop: '1px solid var(--nav-border)',
+            borderLeft: '1px solid var(--nav-border)',
+            borderRight: '1px solid var(--nav-border)',
+            backdropFilter: 'blur(22px)',
+            WebkitBackdropFilter: 'blur(22px)',
+          }}
+        />
+
         {/* Elevated blue + button over the center */}
         <motion.button
           onClick={onCenter}

@@ -134,7 +134,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, isLight, o
         background: 'var(--bg-gradient)',
         backgroundColor: 'var(--bg-solid)',
         paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 50px)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 84px)',
       }}
     >
       {/* Header */}
