@@ -29,6 +29,7 @@ export default function StatisticsView({ isOpen, profile, onClose }: Props) {
   const isDragging = useRef(false)
 
   function handleTouchStart(e: React.TouchEvent) {
+    e.stopPropagation()
     swipeStartX.current = e.touches[0].clientX
     swipeStartY.current = e.touches[0].clientY
     peakX.current = e.touches[0].clientX
@@ -38,6 +39,7 @@ export default function StatisticsView({ isOpen, profile, onClose }: Props) {
   }
 
   function handleTouchMove(e: React.TouchEvent) {
+    e.stopPropagation()
     const x = e.touches[0].clientX
     const dx = x - swipeStartX.current
     const dy = e.touches[0].clientY - swipeStartY.current
@@ -64,6 +66,7 @@ export default function StatisticsView({ isOpen, profile, onClose }: Props) {
   function handleTouchEnd(e: React.TouchEvent) {
     if (!isDragging.current) return
     isDragging.current = false
+    e.stopPropagation()
     const finalX = e.changedTouches[0].clientX
     const now = Date.now()
     const elapsed = now - velocityTrackTime.current
