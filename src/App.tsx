@@ -196,20 +196,17 @@ export default function App() {
   const tabDecided = useRef<'none' | 'h' | 'v'>('none')
   const tabVelX = useRef(0)
   const tabVelT = useRef(0)
-  const firstTabLayout = useRef(true)
+  const prevTabIndex = useRef(activeIndex)
 
   useLayoutEffect(() => {
-    if (tabDragging.current) return
     const t = trackRef.current
-    if (!t) return
-    if (firstTabLayout.current) {
-      t.style.transition = 'none'
-      firstTabLayout.current = false
-    } else {
-      t.style.transition = 'transform 0.32s cubic-bezier(0.32, 0.72, 0, 1)'
-    }
+    if (!t || tabDragging.current) { prevTabIndex.current = activeIndex; return }
+    // Animate only on an actual tab switch; jump instantly on mount / screen / profile change
+    const animate = prevTabIndex.current !== activeIndex
+    t.style.transition = animate ? 'transform 0.32s cubic-bezier(0.32, 0.72, 0, 1)' : 'none'
     t.style.transform = `translateX(-${activeIndex * (100 / 3)}%)`
-  }, [activeIndex])
+    prevTabIndex.current = activeIndex
+  }, [activeIndex, screen, activeProfileId])
 
   function tabTouchStart(e: React.TouchEvent) {
     tabStartX.current = e.touches[0].clientX
