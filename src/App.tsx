@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { AppData, Profile, MonthProfile, Transaction, FixedExpense } from './types'
 import { loadData, saveData } from './utils/storage'
@@ -17,6 +17,7 @@ import StatisticsView from './components/StatisticsView'
 import BottomNav from './components/BottomNav'
 
 type Tab = 'history' | 'dashboard' | 'statistics'
+const TAB_ORDER: Tab[] = ['history', 'dashboard', 'statistics']
 
 function genId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`
@@ -184,6 +185,94 @@ export default function App() {
   const [showEditSavings, setShowEditSavings] = useState(false)
   const [showCreateProfile, setShowCreateProfile] = useState(false)
   const [pendingProfileName, setPendingProfileName] = useState('')
+
+  // ── Swipe carousel between tabs (History | Dashboard | Statistics) ──
+  const activeIndex = TAB_ORDER.indexOf(tab)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const tabStartX = useRef(0)
+  const tabStartY = useRef(0)
+  const tabWidth = useRef(0)
+  const tabDragging = useRef(false)
+  const tabDecided = useRef<'none' | 'h' | 'v'>('none')
+  const tabVelX = useRef(0)
+  const tabVelT = useRef(0)
+  const firstTabLayout = useRef(true)
+
+  useLayoutEffect(() => {
+    if (tabDragging.current) return
+    const t = trackRef.current
+    if (!t) return
+    if (firstTabLayout.current) {
+      t.style.transition = 'none'
+      firstTabLayout.current = false
+    } else {
+      t.style.transition = 'transform 0.32s cubic-bezier(0.32, 0.72, 0, 1)'
+    }
+    t.style.transform = `translateX(-${activeIndex * (100 / 3)}%)`
+  }, [activeIndex])
+
+  function tabTouchStart(e: React.TouchEvent) {
+    tabStartX.current = e.touches[0].clientX
+    tabStartY.current = e.touches[0].clientY
+    tabWidth.current = e.currentTarget.clientWidth
+    tabVelX.current = e.touches[0].clientX
+    tabVelT.current = Date.now()
+    tabDragging.current = false
+    tabDecided.current = 'none'
+  }
+
+  function tabTouchMove(e: React.TouchEvent) {
+    const x = e.touches[0].clientX
+    const dx = x - tabStartX.current
+    const dy = e.touches[0].clientY - tabStartY.current
+
+    if (tabDecided.current === 'none') {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+      if (Math.abs(dy) > Math.abs(dx)) { tabDecided.current = 'v'; return }
+      // leave the left-edge → right swipe for the side menu
+      if (dx > 0 && tabStartX.current <= 40) { tabDecided.current = 'v'; return }
+      tabDecided.current = 'h'
+      tabDragging.current = true
+    }
+    if (tabDecided.current !== 'h') return
+
+    let drag = dx
+    if ((activeIndex === 0 && dx > 0) || (activeIndex === TAB_ORDER.length - 1 && dx < 0)) {
+      drag = dx * 0.3 // resistance at the ends
+    }
+
+    const now = Date.now()
+    if (now - tabVelT.current > 40) { tabVelX.current = x; tabVelT.current = now }
+
+    const t = trackRef.current
+    if (t) {
+      t.style.transition = 'none'
+      t.style.transform = `translateX(calc(-${activeIndex * (100 / 3)}% + ${drag}px))`
+    }
+  }
+
+  function tabTouchEnd(e: React.TouchEvent) {
+    if (tabDecided.current !== 'h') { tabDecided.current = 'none'; return }
+    tabDragging.current = false
+    tabDecided.current = 'none'
+
+    const finalX = e.changedTouches[0].clientX
+    const dx = finalX - tabStartX.current
+    const elapsed = Date.now() - tabVelT.current
+    const vel = elapsed > 0 && elapsed < 200 ? (finalX - tabVelX.current) / elapsed : 0
+    const threshold = tabWidth.current * 0.22
+
+    let target = activeIndex
+    if ((dx > threshold || vel > 0.4) && activeIndex > 0) target = activeIndex - 1
+    else if ((dx < -threshold || vel < -0.4) && activeIndex < TAB_ORDER.length - 1) target = activeIndex + 1
+
+    const t = trackRef.current
+    if (t) {
+      t.style.transition = 'transform 0.32s cubic-bezier(0.32, 0.72, 0, 1)'
+      t.style.transform = `translateX(-${target * (100 / 3)}%)`
+    }
+    if (target !== activeIndex) setTab(TAB_ORDER[target])
+  }
 
   const now = new Date()
   const setupYear = now.getFullYear()
@@ -419,36 +508,43 @@ export default function App() {
             animate={{ opacity: 1, x: 0, transition: { duration: 0.22, ease: 'easeOut' as const } }}
             exit={{ opacity: 0, x: direction * -28, transition: { duration: 0.16, ease: 'easeIn' as const } }}
           >
-            <div className="flex-1 min-h-0 relative">
-              {tab === 'dashboard' && (
-                <Dashboard
-                  profile={activeMonthProfile}
-                  onDeleteTx={handleDeleteTx}
-                  onEditSalary={() => setShowEditSalary(true)}
-                  onEditSavings={() => setShowEditSavings(true)}
-                  onOpenMenu={() => setMenuOpen(true)}
-                  onOpenHelp={() => setShowHelp(true)}
-                  isLight={isLight}
-                  onToggleTheme={toggleTheme}
-                />
-              )}
-              {tab === 'history' && (
-                <HistoryView
-                  isOpen
-                  months={activeProfile?.months ?? {}}
-                  onAddTxToMonth={handleAddTxToMonth}
-                  isLight={isLight}
-                  onToggleTheme={toggleTheme}
-                />
-              )}
-              {tab === 'statistics' && (
-                <StatisticsView
-                  isOpen
-                  months={activeProfile?.months ?? {}}
-                  isLight={isLight}
-                  onToggleTheme={toggleTheme}
-                />
-              )}
+            <div
+              className="flex-1 min-h-0 relative overflow-hidden"
+              onTouchStart={tabTouchStart}
+              onTouchMove={tabTouchMove}
+              onTouchEnd={tabTouchEnd}
+            >
+              <div ref={trackRef} className="flex h-full" style={{ width: '300%' }}>
+                <div className="h-full flex-shrink-0" style={{ width: '33.3333%' }}>
+                  <HistoryView
+                    isOpen
+                    months={activeProfile?.months ?? {}}
+                    onAddTxToMonth={handleAddTxToMonth}
+                    isLight={isLight}
+                    onToggleTheme={toggleTheme}
+                  />
+                </div>
+                <div className="h-full flex-shrink-0" style={{ width: '33.3333%' }}>
+                  <Dashboard
+                    profile={activeMonthProfile}
+                    onDeleteTx={handleDeleteTx}
+                    onEditSalary={() => setShowEditSalary(true)}
+                    onEditSavings={() => setShowEditSavings(true)}
+                    onOpenMenu={() => setMenuOpen(true)}
+                    onOpenHelp={() => setShowHelp(true)}
+                    isLight={isLight}
+                    onToggleTheme={toggleTheme}
+                  />
+                </div>
+                <div className="h-full flex-shrink-0" style={{ width: '33.3333%' }}>
+                  <StatisticsView
+                    isOpen
+                    months={activeProfile?.months ?? {}}
+                    isLight={isLight}
+                    onToggleTheme={toggleTheme}
+                  />
+                </div>
+              </div>
             </div>
 
             <BottomNav

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import type { MonthProfile, Transaction } from '../types'
 import { getRemaining, getSpentSoFar, fixedTotal } from '../utils/calc'
 import { useKeyboardOffset } from '../utils/useKeyboardOffset'
@@ -286,8 +287,8 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, isLight, o
 
       {!selectedDay && <div className="flex-1" />}
 
-      {/* Add form — centered popup above keyboard */}
-      {addingTx && (
+      {/* Add form — centered popup above keyboard (portal so the carousel transform doesn't offset it) */}
+      {addingTx && createPortal(
         <div
           className="fixed inset-0 z-[60] flex items-end justify-center px-6"
           style={{ paddingBottom: keyboardOffset > 0 ? keyboardOffset + 10 : 'calc(env(safe-area-inset-bottom) + 16px)' }}
@@ -369,7 +370,8 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, isLight, o
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
