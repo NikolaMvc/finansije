@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import type { MonthProfile, Transaction } from '../types'
 import { getRemaining, getSpentSoFar, fixedTotal } from '../utils/calc'
 import { useKeyboardOffset } from '../utils/useKeyboardOffset'
+import ThemeToggle from './ThemeToggle'
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -14,10 +15,11 @@ interface Props {
   isOpen: boolean
   months: Record<string, MonthProfile>
   onAddTxToMonth: (monthKey: string, tx: Omit<Transaction, 'id'>) => void
-  onClose: () => void
+  isLight: boolean
+  onToggleTheme: () => void
 }
 
-export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }: Props) {
+export default function HistoryView({ isOpen, months, onAddTxToMonth, isLight, onToggleTheme }: Props) {
   const now = new Date()
   const [viewYear, setViewYear] = useState(now.getFullYear())
   const [viewMonth, setViewMonth] = useState(now.getMonth() + 1)
@@ -137,12 +139,9 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
     >
       {/* Header */}
       <div className="flex-none flex items-center justify-between px-5 py-3 border-b" style={{ borderColor: 'var(--surface-border)' }}>
-        <button onClick={onClose} className="text-sm flex items-center gap-1 active:opacity-60" style={{ color: 'var(--text-secondary)' }}>
-          <span>←</span>
-          <span>Back</span>
-        </button>
+        <div style={{ width: 66 }} />
         <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>History</span>
-        <div className="w-16" />
+        <ThemeToggle isLight={isLight} onToggle={onToggleTheme} />
       </div>
 
       {/* Month nav */}
@@ -256,8 +255,8 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
             {profile && (
               <button
                 onClick={() => setAddingTx(true)}
-                className="w-6 h-6 rounded-full bg-white/10 text-gray-400 text-[14px] flex items-center justify-center active:bg-white/20"
-                style={{ lineHeight: 1 }}
+                className="w-7 h-7 rounded-full text-white text-[15px] flex items-center justify-center active:opacity-80"
+                style={{ background: 'linear-gradient(145deg, #3b82f6 0%, #2563eb 100%)', boxShadow: '0 2px 8px rgba(59,130,246,0.4)', lineHeight: 1 }}
               >
                 +
               </button>
@@ -287,24 +286,18 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
 
       {!selectedDay && <div className="flex-1" />}
 
-      {/* Add form — floating bottom sheet above keyboard */}
+      {/* Add form — centered popup above keyboard */}
       {addingTx && (
-        <>
-          <div className="absolute inset-0 z-50 bg-black/60 animate-fade-in" onClick={closeAddForm} />
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center px-6"
+          style={{ paddingBottom: keyboardOffset > 0 ? keyboardOffset + 16 : 0 }}
+        >
+          <div className="absolute inset-0 bg-black/70 animate-fade-in" onClick={closeAddForm} />
           <div
-            className="absolute left-0 right-0 z-50 rounded-t-[28px] animate-slide-up overflow-hidden flex flex-col"
-            style={{
-              backgroundColor: 'var(--surface)',
-              bottom: keyboardOffset,
-              paddingBottom: keyboardOffset > 0 ? '8px' : 'calc(env(safe-area-inset-bottom) + 8px)',
-              maxHeight: `calc(100vh - ${keyboardOffset}px - 40px)`,
-            }}
+            className="relative w-full max-w-sm rounded-[28px] overflow-hidden animate-pop"
+            style={{ backgroundColor: 'var(--surface)' }}
           >
-            <div className="flex justify-center pt-3 pb-2 flex-none">
-              <div className="w-9 h-1 rounded-full" style={{ backgroundColor: 'var(--surface-handle)' }} />
-            </div>
-
-            <div className="px-5 pb-4 space-y-3">
+            <div className="px-5 pt-5 pb-5 space-y-3">
               <div className="flex gap-2">
                 <button
                   onClick={() => setAddType('expense')}
@@ -376,7 +369,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, onClose }:
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   )

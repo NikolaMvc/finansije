@@ -161,6 +161,11 @@ html.light {
   to { opacity: 1; }
 }
 
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 @keyframes slideInRight {
   from {
     transform: translateX(100%);
@@ -176,6 +181,10 @@ html.light {
 
 .animate-fade-in {
   animation: fadeIn 0.2s ease forwards;
+}
+
+.animate-pop {
+  animation: pop 0.2s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
 
 .animate-slide-in-right {

@@ -31,22 +31,16 @@ export default function AddTxModal({ isOpen, onAdd, onClose }: Props) {
   if (!isOpen) return null
 
   return (
-    <>
-      <div className="absolute inset-0 z-40 bg-black/70 animate-fade-in" onClick={onClose} />
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center px-6"
+      style={{ paddingBottom: keyboardOffset > 0 ? keyboardOffset + 16 : 0 }}
+    >
+      <div className="absolute inset-0 bg-black/70 animate-fade-in" onClick={onClose} />
       <div
-        className="absolute left-0 right-0 z-50 rounded-t-[28px] animate-slide-up overflow-hidden flex flex-col"
-        style={{
-          backgroundColor: 'var(--surface)',
-          bottom: keyboardOffset,
-          paddingBottom: keyboardOffset > 0 ? '8px' : 'calc(env(safe-area-inset-bottom) + 8px)',
-          maxHeight: `calc(100vh - ${keyboardOffset}px - 40px)`,
-        }}
+        className="relative w-full max-w-sm rounded-[28px] overflow-hidden animate-pop"
+        style={{ backgroundColor: 'var(--surface)' }}
       >
-        <div className="flex justify-center pt-3 pb-2 flex-none">
-          <div className="w-9 h-1 rounded-full" style={{ backgroundColor: 'var(--surface-handle)' }} />
-        </div>
-
-        <div className="px-5 pb-4 space-y-3">
+        <div className="px-5 pt-5 pb-5 space-y-3">
           <div className="flex gap-2">
             <button
               onClick={() => setType('expense')}
@@ -117,6 +111,6 @@ export default function AddTxModal({ isOpen, onAdd, onClose }: Props) {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

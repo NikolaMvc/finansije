@@ -426,6 +426,7 @@ export default function App() {
                 onEditSalary={() => setShowEditSalary(true)}
                 onEditSavings={() => setShowEditSavings(true)}
                 onOpenMenu={() => setMenuOpen(true)}
+                onOpenHelp={() => setShowHelp(true)}
                 isLight={isLight}
                 onToggleTheme={toggleTheme}
               />
@@ -435,14 +436,16 @@ export default function App() {
                 isOpen
                 months={activeProfile?.months ?? {}}
                 onAddTxToMonth={handleAddTxToMonth}
-                onClose={() => setTab('dashboard')}
+                isLight={isLight}
+                onToggleTheme={toggleTheme}
               />
             )}
             {tab === 'statistics' && (
               <StatisticsView
                 isOpen
-                profile={activeMonthProfile}
-                onClose={() => setTab('dashboard')}
+                months={activeProfile?.months ?? {}}
+                isLight={isLight}
+                onToggleTheme={toggleTheme}
               />
             )}
 

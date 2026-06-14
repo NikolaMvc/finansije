@@ -28,6 +28,7 @@ interface Props {
   onEditSalary: () => void
   onEditSavings: () => void
   onOpenMenu: () => void
+  onOpenHelp: () => void
   isLight: boolean
   onToggleTheme: () => void
 }
@@ -42,7 +43,7 @@ function fmtDate(ds: string): string {
   return `${parseInt(d)} ${month}`
 }
 
-export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSavings, onOpenMenu, isLight, onToggleTheme }: Props) {
+export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSavings, onOpenMenu, onOpenHelp, isLight, onToggleTheme }: Props) {
   const [expanded, setExpanded] = useState(false)
   const [showCircleInfo, setShowCircleInfo] = useState(false)
   const [, setTick] = useState(0)
@@ -113,7 +114,17 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
           {MON_SHORT[profile.month - 1]} {profile.year}
         </span>
 
-        <ThemeToggle isLight={isLight} onToggle={onToggleTheme} />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onOpenHelp}
+            className="w-8 h-8 rounded-full text-xs flex items-center justify-center active:opacity-60 transition-colors border"
+            style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--surface-border)', color: 'var(--text-muted)' }}
+            aria-label="Help"
+          >
+            ?
+          </button>
+          <ThemeToggle isLight={isLight} onToggle={onToggleTheme} />
+        </div>
       </div>
 
       {/* Top 3 cards */}
