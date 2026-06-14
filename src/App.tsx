@@ -414,40 +414,42 @@ export default function App() {
           </motion.div>
         )}
         {screen === 'dashboard' && activeMonthProfile && (
-          <motion.div key={`dashboard-${activeProfileId}`} className="absolute inset-0"
+          <motion.div key={`dashboard-${activeProfileId}`} className="absolute inset-0 flex flex-col"
             initial={{ opacity: 0, x: direction * 28 }}
             animate={{ opacity: 1, x: 0, transition: { duration: 0.22, ease: 'easeOut' as const } }}
             exit={{ opacity: 0, x: direction * -28, transition: { duration: 0.16, ease: 'easeIn' as const } }}
           >
-            {tab === 'dashboard' && (
-              <Dashboard
-                profile={activeMonthProfile}
-                onDeleteTx={handleDeleteTx}
-                onEditSalary={() => setShowEditSalary(true)}
-                onEditSavings={() => setShowEditSavings(true)}
-                onOpenMenu={() => setMenuOpen(true)}
-                onOpenHelp={() => setShowHelp(true)}
-                isLight={isLight}
-                onToggleTheme={toggleTheme}
-              />
-            )}
-            {tab === 'history' && (
-              <HistoryView
-                isOpen
-                months={activeProfile?.months ?? {}}
-                onAddTxToMonth={handleAddTxToMonth}
-                isLight={isLight}
-                onToggleTheme={toggleTheme}
-              />
-            )}
-            {tab === 'statistics' && (
-              <StatisticsView
-                isOpen
-                months={activeProfile?.months ?? {}}
-                isLight={isLight}
-                onToggleTheme={toggleTheme}
-              />
-            )}
+            <div className="flex-1 min-h-0 relative">
+              {tab === 'dashboard' && (
+                <Dashboard
+                  profile={activeMonthProfile}
+                  onDeleteTx={handleDeleteTx}
+                  onEditSalary={() => setShowEditSalary(true)}
+                  onEditSavings={() => setShowEditSavings(true)}
+                  onOpenMenu={() => setMenuOpen(true)}
+                  onOpenHelp={() => setShowHelp(true)}
+                  isLight={isLight}
+                  onToggleTheme={toggleTheme}
+                />
+              )}
+              {tab === 'history' && (
+                <HistoryView
+                  isOpen
+                  months={activeProfile?.months ?? {}}
+                  onAddTxToMonth={handleAddTxToMonth}
+                  isLight={isLight}
+                  onToggleTheme={toggleTheme}
+                />
+              )}
+              {tab === 'statistics' && (
+                <StatisticsView
+                  isOpen
+                  months={activeProfile?.months ?? {}}
+                  isLight={isLight}
+                  onToggleTheme={toggleTheme}
+                />
+              )}
+            </div>
 
             <BottomNav
               active={tab}

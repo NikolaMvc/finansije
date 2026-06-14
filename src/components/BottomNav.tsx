@@ -44,7 +44,7 @@ function Indicator() {
 export default function BottomNav({ active, onHistory, onCenter, onStatistics }: Props) {
   return (
     <motion.div
-      className="absolute left-0 right-0 bottom-0 z-30 px-4"
+      className="relative flex-none px-4"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       initial={{ y: 50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -95,21 +95,6 @@ export default function BottomNav({ active, onHistory, onCenter, onStatistics }:
             {active === 'statistics' && <Indicator />}
           </button>
         </div>
-
-        {/* Glass cradle (dome) behind the + so the area around it is glass, not black */}
-        <div
-          className="absolute"
-          style={{
-            width: 86, height: 54, top: -24, left: '50%', transform: 'translateX(-50%)',
-            background: 'var(--nav-bg)',
-            borderTopLeftRadius: 43, borderTopRightRadius: 43,
-            borderTop: '1px solid var(--nav-border)',
-            borderLeft: '1px solid var(--nav-border)',
-            borderRight: '1px solid var(--nav-border)',
-            backdropFilter: 'blur(22px)',
-            WebkitBackdropFilter: 'blur(22px)',
-          }}
-        />
 
         {/* Elevated blue + button over the center */}
         <motion.button

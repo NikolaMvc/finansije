@@ -75,7 +75,7 @@ export default function StatisticsView({ isOpen, months, isLight, onToggleTheme 
         background: 'var(--bg-gradient)',
         backgroundColor: 'var(--bg-solid)',
         paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 84px)',
+        paddingBottom: 0,
       }}
     >
       {/* Header */}
