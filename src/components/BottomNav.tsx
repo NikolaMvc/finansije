@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion'
-import type { ReactNode } from 'react'
+
+type Tab = 'history' | 'dashboard' | 'statistics'
 
 interface Props {
+  active: Tab
   onHistory: () => void
-  onAdd: () => void
+  onCenter: () => void
   onStatistics: () => void
 }
 
@@ -28,34 +30,32 @@ function BarsIcon() {
   )
 }
 
-function NavItem({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
+function Indicator() {
   return (
-    <button
-      onClick={onClick}
-      className="flex flex-col items-center justify-end gap-[5px] flex-1 h-full pb-2 active:opacity-50 transition-opacity"
-      style={{ color: 'var(--text-secondary)' }}
-    >
-      <span className="flex items-center justify-center" style={{ height: 24 }}>{children}</span>
-      <span className="text-[10px] font-medium tracking-wide">{label}</span>
-    </button>
+    <motion.span
+      layoutId="navIndicator"
+      className="absolute rounded-full"
+      style={{ bottom: 5, width: 18, height: 3.5, background: 'var(--clr-green)' }}
+      transition={{ type: 'spring', stiffness: 480, damping: 34 }}
+    />
   )
 }
 
-export default function BottomNav({ onHistory, onAdd, onStatistics }: Props) {
+export default function BottomNav({ active, onHistory, onCenter, onStatistics }: Props) {
   return (
     <motion.div
-      className="flex-none relative"
+      className="absolute left-0 right-0 bottom-0 z-30 px-4"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       initial={{ y: 50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.42, ease: [0.32, 0.72, 0, 1] }}
+      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
     >
-      <div className="relative mx-4" style={{ height: 78 }}>
-        {/* Pill bar */}
+      <div className="relative" style={{ height: 60 }}>
+        {/* Pill */}
         <div
-          className="absolute left-0 right-0 bottom-0 rounded-[26px] flex items-stretch px-3"
+          className="absolute left-0 right-0 bottom-0 rounded-[26px] flex items-stretch"
           style={{
-            height: 62,
+            height: 60,
             background: 'var(--nav-bg)',
             border: '1px solid var(--nav-border)',
             backdropFilter: 'blur(22px)',
@@ -63,45 +63,54 @@ export default function BottomNav({ onHistory, onAdd, onStatistics }: Props) {
             boxShadow: '0 8px 30px rgba(0,0,0,0.22)',
           }}
         >
-          <NavItem label="History" onClick={onHistory}><CalendarIcon /></NavItem>
+          {/* History */}
+          <button
+            onClick={onHistory}
+            className="relative flex flex-col items-center justify-end gap-[5px] flex-1 pb-2 active:opacity-70 transition-colors"
+            style={{ color: active === 'history' ? 'var(--text-primary)' : 'var(--text-secondary)' }}
+          >
+            <span className="flex items-center justify-center" style={{ height: 22 }}><CalendarIcon /></span>
+            <span className={`text-[10px] tracking-wide ${active === 'history' ? 'font-bold' : 'font-medium'}`}>History</span>
+            {active === 'history' && <Indicator />}
+          </button>
 
-          {/* Center column — reserves space, holds the label */}
-          <div className="flex flex-col items-center justify-end gap-[5px] flex-1 h-full pb-2">
-            <span style={{ height: 24 }} />
-            <span className="text-[10px] font-semibold tracking-wide" style={{ color: 'var(--clr-blue)' }}>
-              Dashboard
-            </span>
-          </div>
+          {/* Dashboard (center) */}
+          <button
+            onClick={onCenter}
+            className="relative flex flex-col items-center justify-end gap-[5px] flex-1 pb-2 transition-colors"
+            style={{ color: active === 'dashboard' ? 'var(--text-primary)' : 'var(--text-secondary)' }}
+          >
+            <span style={{ height: 22 }} />
+            <span className={`text-[10px] tracking-wide ${active === 'dashboard' ? 'font-bold' : 'font-medium'}`}>Dashboard</span>
+            {active === 'dashboard' && <Indicator />}
+          </button>
 
-          <NavItem label="Statistics" onClick={onStatistics}><BarsIcon /></NavItem>
+          {/* Statistics */}
+          <button
+            onClick={onStatistics}
+            className="relative flex flex-col items-center justify-end gap-[5px] flex-1 pb-2 active:opacity-70 transition-colors"
+            style={{ color: active === 'statistics' ? 'var(--text-primary)' : 'var(--text-secondary)' }}
+          >
+            <span className="flex items-center justify-center" style={{ height: 22 }}><BarsIcon /></span>
+            <span className={`text-[10px] tracking-wide ${active === 'statistics' ? 'font-bold' : 'font-medium'}`}>Statistics</span>
+            {active === 'statistics' && <Indicator />}
+          </button>
         </div>
 
-        {/* Pulsing glow ring behind center button */}
-        <motion.span
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            width: 56, height: 56, top: -8, left: '50%', x: '-50%',
-            background: '#3b82f6',
-          }}
-          initial={{ opacity: 0.35, scale: 1 }}
-          animate={{ opacity: 0, scale: 1.55 }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut' }}
-        />
-
-        {/* Center elevated add button */}
+        {/* Elevated blue + button over the center */}
         <motion.button
-          onClick={onAdd}
-          aria-label="Add transaction"
+          onClick={onCenter}
+          aria-label={active === 'dashboard' ? 'Add transaction' : 'Go to dashboard'}
           className="absolute flex items-center justify-center rounded-full"
           style={{
-            width: 56, height: 56, top: -8, left: '50%', x: '-50%',
+            width: 54, height: 54, top: -20, left: '50%', x: '-50%',
             background: 'linear-gradient(145deg, #3b82f6 0%, #2563eb 100%)',
-            boxShadow: '0 6px 20px rgba(59,130,246,0.5), 0 0 0 5px rgba(59,130,246,0.12)',
+            boxShadow: '0 6px 18px rgba(59,130,246,0.45)',
           }}
-          whileTap={{ scale: 0.88 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 18 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 20 }}
         >
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.4" strokeLinecap="round">
+          <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.4" strokeLinecap="round">
             <line x1="12" y1="6" x2="12" y2="18" />
             <line x1="6" y1="12" x2="18" y2="12" />
           </svg>

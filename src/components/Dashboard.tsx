@@ -5,7 +5,6 @@ import { getRemaining, getDailyBudget, getTodayBudget, getStartDailyBudget, inco
 import { useCountUp } from '../utils/useCountUp'
 import MonthProgressCircle from './MonthProgressCircle'
 import ThemeToggle from './ThemeToggle'
-import BottomNav from './BottomNav'
 
 const MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -25,13 +24,10 @@ const CS = {
 
 interface Props {
   profile: MonthProfile
-  onAddTx: () => void
   onDeleteTx: (id: string) => void
   onEditSalary: () => void
   onEditSavings: () => void
   onOpenMenu: () => void
-  onOpenHistory: () => void
-  onOpenStatistics: () => void
   isLight: boolean
   onToggleTheme: () => void
 }
@@ -46,7 +42,7 @@ function fmtDate(ds: string): string {
   return `${parseInt(d)} ${month}`
 }
 
-export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, onEditSavings, onOpenMenu, onOpenHistory, onOpenStatistics, isLight, onToggleTheme }: Props) {
+export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSavings, onOpenMenu, isLight, onToggleTheme }: Props) {
   const [expanded, setExpanded] = useState(false)
   const [showCircleInfo, setShowCircleInfo] = useState(false)
   const [, setTick] = useState(0)
@@ -98,8 +94,8 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
 
   return (
     <div
-      className="h-dvh flex flex-col text-white overflow-hidden"
-      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+      className="h-full flex flex-col text-white overflow-hidden"
+      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'calc(env(safe-area-inset-bottom) + 84px)' }}
     >
       {/* Header */}
       <div className="flex-none flex items-center justify-between px-5 py-3">
@@ -303,12 +299,6 @@ export default function Dashboard({ profile, onAddTx, onDeleteTx, onEditSalary, 
         </motion.div>
       </div>
 
-      {/* Bottom navigation */}
-      <BottomNav
-        onHistory={onOpenHistory}
-        onAdd={onAddTx}
-        onStatistics={onOpenStatistics}
-      />
 
       {/* Circle info tooltip */}
       {showCircleInfo && (

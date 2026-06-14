@@ -1,4 +1,3 @@
-import { useRef } from 'react'
 import type { MonthProfile, Transaction } from '../types'
 import { expensesTotal, incomeTotal, getRemaining, fixedTotal } from '../utils/calc'
 
@@ -20,74 +19,6 @@ function fmtDate(ds: string): string {
 }
 
 export default function StatisticsView({ isOpen, profile, onClose }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const swipeStartX = useRef(0)
-  const swipeStartY = useRef(0)
-  const peakX = useRef(0)
-  const velocityTrackX = useRef(0)
-  const velocityTrackTime = useRef(0)
-  const isDragging = useRef(false)
-
-  function handleTouchStart(e: React.TouchEvent) {
-    e.stopPropagation()
-    swipeStartX.current = e.touches[0].clientX
-    swipeStartY.current = e.touches[0].clientY
-    peakX.current = e.touches[0].clientX
-    velocityTrackX.current = e.touches[0].clientX
-    velocityTrackTime.current = Date.now()
-    isDragging.current = false
-  }
-
-  function handleTouchMove(e: React.TouchEvent) {
-    e.stopPropagation()
-    const x = e.touches[0].clientX
-    const dx = x - swipeStartX.current
-    const dy = e.touches[0].clientY - swipeStartY.current
-    if (!isDragging.current) {
-      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
-      if (Math.abs(dy) >= Math.abs(dx)) return
-      if (dx <= 0) return
-      isDragging.current = true
-      if (containerRef.current) containerRef.current.style.animation = 'none'
-    }
-    if (x > peakX.current) peakX.current = x
-    const now = Date.now()
-    if (now - velocityTrackTime.current > 40) {
-      velocityTrackX.current = x
-      velocityTrackTime.current = now
-    }
-    const offset = Math.max(0, dx)
-    if (containerRef.current) {
-      containerRef.current.style.transition = 'none'
-      containerRef.current.style.transform = `translateX(${offset}px)`
-    }
-  }
-
-  function handleTouchEnd(e: React.TouchEvent) {
-    if (!isDragging.current) return
-    isDragging.current = false
-    e.stopPropagation()
-    const finalX = e.changedTouches[0].clientX
-    const now = Date.now()
-    const elapsed = now - velocityTrackTime.current
-    const velocity = elapsed > 0 && elapsed < 200 ? (finalX - velocityTrackX.current) / elapsed : 0
-    const retreated = (peakX.current - finalX) > 25 || velocity < -0.3
-    const offset = Math.max(0, finalX - swipeStartX.current)
-    const threshold = window.innerWidth * 0.10
-    if (!retreated && offset > threshold) {
-      if (containerRef.current) {
-        containerRef.current.style.transition = 'transform 0.28s cubic-bezier(0.32, 0.72, 0, 1)'
-        containerRef.current.style.transform = 'translateX(100%)'
-      }
-      setTimeout(onClose, 280)
-    } else {
-      if (containerRef.current) {
-        containerRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-        containerRef.current.style.transform = 'translateX(0)'
-      }
-    }
-  }
-
   if (!isOpen || !profile) return null
 
   const income = incomeTotal(profile)
@@ -107,17 +38,13 @@ export default function StatisticsView({ isOpen, profile, onClose }: Props) {
 
   return (
     <div
-      ref={containerRef}
-      className="absolute inset-0 z-40 flex flex-col overflow-hidden animate-slide-in-right"
+      className="relative h-full flex flex-col overflow-hidden"
       style={{
         background: 'var(--bg-gradient)',
         backgroundColor: 'var(--bg-solid)',
         paddingTop: 'env(safe-area-inset-top)',
-        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 84px)',
       }}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
     >
       {/* Header */}
       <div className="flex-none flex items-center justify-between px-5 py-3 border-b" style={{ borderColor: 'var(--surface-border)' }}>

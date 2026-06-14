@@ -14,6 +14,9 @@ import ChooseProfileScreen from './components/ChooseProfileScreen'
 import CreateProfileModal from './components/CreateProfileModal'
 import ThemeToggle from './components/ThemeToggle'
 import StatisticsView from './components/StatisticsView'
+import BottomNav from './components/BottomNav'
+
+type Tab = 'history' | 'dashboard' | 'statistics'
 
 function genId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`
@@ -175,8 +178,7 @@ export default function App() {
   // Modal / overlay states
   const [showSetup, setShowSetup] = useState(false)
   const [showAddTx, setShowAddTx] = useState(false)
-  const [showHistory, setShowHistory] = useState(false)
-  const [showStatistics, setShowStatistics] = useState(false)
+  const [tab, setTab] = useState<Tab>('dashboard')
   const [showHelp, setShowHelp] = useState(false)
   const [showEditSalary, setShowEditSalary] = useState(false)
   const [showEditSavings, setShowEditSavings] = useState(false)
@@ -212,6 +214,7 @@ export default function App() {
     }
     setDirection(1)
     setActiveProfileId(profileId)
+    setTab('dashboard')
     setScreen('dashboard')
   }
 
@@ -333,6 +336,7 @@ export default function App() {
       setPendingProfileName('')
       setShowSetup(true)
     }
+    setTab('dashboard')
     setMenuOpen(false)
   }
 
@@ -357,7 +361,7 @@ export default function App() {
     setScreen('choose')
     setActiveProfileId(null)
     setMenuOpen(false)
-    setShowHistory(false)
+    setTab('dashboard')
   }
 
   useEffect(() => {
@@ -415,17 +419,38 @@ export default function App() {
             animate={{ opacity: 1, x: 0, transition: { duration: 0.22, ease: 'easeOut' as const } }}
             exit={{ opacity: 0, x: direction * -28, transition: { duration: 0.16, ease: 'easeIn' as const } }}
           >
-            <Dashboard
-              profile={activeMonthProfile}
-              onAddTx={() => setShowAddTx(true)}
-              onDeleteTx={handleDeleteTx}
-              onEditSalary={() => setShowEditSalary(true)}
-              onEditSavings={() => setShowEditSavings(true)}
-              onOpenMenu={() => setMenuOpen(true)}
-              onOpenHistory={() => setShowHistory(true)}
-              onOpenStatistics={() => setShowStatistics(true)}
-              isLight={isLight}
-              onToggleTheme={toggleTheme}
+            {tab === 'dashboard' && (
+              <Dashboard
+                profile={activeMonthProfile}
+                onDeleteTx={handleDeleteTx}
+                onEditSalary={() => setShowEditSalary(true)}
+                onEditSavings={() => setShowEditSavings(true)}
+                onOpenMenu={() => setMenuOpen(true)}
+                isLight={isLight}
+                onToggleTheme={toggleTheme}
+              />
+            )}
+            {tab === 'history' && (
+              <HistoryView
+                isOpen
+                months={activeProfile?.months ?? {}}
+                onAddTxToMonth={handleAddTxToMonth}
+                onClose={() => setTab('dashboard')}
+              />
+            )}
+            {tab === 'statistics' && (
+              <StatisticsView
+                isOpen
+                profile={activeMonthProfile}
+                onClose={() => setTab('dashboard')}
+              />
+            )}
+
+            <BottomNav
+              active={tab}
+              onHistory={() => setTab('history')}
+              onCenter={() => { if (tab === 'dashboard') setShowAddTx(true); else setTab('dashboard') }}
+              onStatistics={() => setTab('statistics')}
             />
           </motion.div>
         )}
@@ -457,8 +482,8 @@ export default function App() {
         >
           <div className="px-4 pt-14 pb-6 space-y-1 flex-1">
             <MenuRow label="Current Month" onClick={handleCurrentMonth} />
-            <MenuRow label="History" onClick={() => { setShowHistory(true); setMenuOpen(false) }} />
-            <MenuRow label="Statistics" onClick={() => { setShowStatistics(true); setMenuOpen(false) }} />
+            <MenuRow label="History" onClick={() => { setTab('history'); setMenuOpen(false) }} />
+            <MenuRow label="Statistics" onClick={() => { setTab('statistics'); setMenuOpen(false) }} />
             <MenuRow label="Help" onClick={() => { setShowHelp(true); setMenuOpen(false) }} />
           </div>
           <div className="px-4 pb-2">
@@ -486,19 +511,6 @@ export default function App() {
         isOpen={showAddTx}
         onAdd={handleAddTx}
         onClose={() => setShowAddTx(false)}
-      />
-
-      <HistoryView
-        isOpen={showHistory}
-        months={activeProfile?.months ?? {}}
-        onAddTxToMonth={handleAddTxToMonth}
-        onClose={() => setShowHistory(false)}
-      />
-
-      <StatisticsView
-        isOpen={showStatistics}
-        profile={activeMonthProfile}
-        onClose={() => setShowStatistics(false)}
       />
 
       <HelpPanel
