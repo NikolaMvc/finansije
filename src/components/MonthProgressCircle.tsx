@@ -66,7 +66,7 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
   return (
     <button
       onClick={onClick}
-      className="active:opacity-70 transition-opacity"
+      className="active:scale-[0.96] transition-transform"
       aria-label="Month progress"
     >
       <svg viewBox={`0 0 180 ${viewH}`} width="176" height="176">
