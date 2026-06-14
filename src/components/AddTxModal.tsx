@@ -32,8 +32,8 @@ export default function AddTxModal({ isOpen, onAdd, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center px-6"
-      style={{ paddingBottom: keyboardOffset > 0 ? keyboardOffset + 16 : 0 }}
+      className="fixed inset-0 z-[60] flex items-end justify-center px-6"
+      style={{ paddingBottom: keyboardOffset > 0 ? keyboardOffset + 10 : 'calc(env(safe-area-inset-bottom) + 16px)' }}
     >
       <div className="absolute inset-0 bg-black/70 animate-fade-in" onClick={onClose} />
       <div

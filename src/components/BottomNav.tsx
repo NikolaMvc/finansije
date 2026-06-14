@@ -51,10 +51,16 @@ export default function BottomNav({ active, onHistory, onCenter, onStatistics }:
       transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
     >
       <div className="relative" style={{ height: 60 }}>
-        {/* Transparent bar — just the nav items, no surrounding box */}
+        {/* Glass pill with border — no dark shadow halo around it */}
         <div
-          className="absolute left-0 right-0 bottom-0 flex items-stretch"
-          style={{ height: 60 }}
+          className="absolute left-0 right-0 bottom-0 rounded-[26px] flex items-stretch"
+          style={{
+            height: 60,
+            background: 'var(--nav-bg)',
+            border: '1px solid var(--nav-border)',
+            backdropFilter: 'blur(22px)',
+            WebkitBackdropFilter: 'blur(22px)',
+          }}
         >
           {/* History */}
           <button
