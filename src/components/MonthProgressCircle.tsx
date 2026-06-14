@@ -55,8 +55,9 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
   // Text colors: above green line vs below (on green)
   // Dark mode: white on dark bg → black on bright green
   // Light mode: dark on light bg → white on medium-dark green
-  const numAbove = isLight ? '#111827' : '#ffffff'
-  const numBelow = isLight ? '#ffffff' : '#111827'
+  // Yellow on the surface (matches the Remaining card); dark where the green fill is behind it (stays readable)
+  const numAbove = isLight ? '#d97706' : '#fcd34d'
+  const numBelow = '#111827'
 
   // Gradient stop offset (0–1) at the green fill boundary
   const edgeOffset = fillY / viewH
