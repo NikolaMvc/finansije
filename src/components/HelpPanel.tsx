@@ -18,8 +18,14 @@ export default function HelpPanel({ isOpen, onClose }: Props) {
     <>
       <div className="absolute inset-0 z-40" onClick={onClose} />
       <div
-        className="absolute bottom-24 right-4 z-50 rounded-2xl p-4 w-52 animate-fade-in border"
-        style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--surface-border)' }}
+        className="absolute right-4 z-50 rounded-2xl p-4 w-52 animate-pop border"
+        style={{
+          top: 'calc(env(safe-area-inset-top) + 52px)',
+          transformOrigin: 'top right',
+          backgroundColor: 'var(--surface)',
+          borderColor: 'var(--surface-border)',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.25)',
+        }}
       >
         <div className="space-y-2.5">
           {items.map(({ varName, label }) => (
