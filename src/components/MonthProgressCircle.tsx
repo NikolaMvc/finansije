@@ -54,6 +54,9 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
 
   // Number color — same yellow as the Remaining / Daily Budget cards
   const numColor = isLight ? '#d97706' : '#fcd34d'
+  // Dark mode: thin dark outline so the yellow stays readable over the green fill
+  const numStroke = isLight ? 'none' : 'rgba(0,0,0,0.55)'
+  const numStrokeWidth = isLight ? 0 : 1
 
   return (
     <button
@@ -104,7 +107,8 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
 
         {/* Number — centered, yellow like the Remaining card */}
         <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
-          fontSize="34" fontWeight="700" fill={numColor}>
+          fontSize="34" fontWeight="700" fill={numColor}
+          stroke={numStroke} strokeWidth={numStrokeWidth} paintOrder="stroke" strokeLinejoin="round">
           {daysLeft}
         </text>
       </svg>
