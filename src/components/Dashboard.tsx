@@ -96,7 +96,7 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
   return (
     <div
       className="h-full flex flex-col text-white overflow-hidden"
-      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 0 }}
+      style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: '36px' }}
     >
       {/* Header */}
       <div className="flex-none flex items-center justify-between px-5 py-3">
