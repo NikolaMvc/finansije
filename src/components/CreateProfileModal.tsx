@@ -25,21 +25,16 @@ export default function CreateProfileModal({ isOpen, onConfirm, onClose }: Props
   }
 
   return (
-    <>
-      <div className="absolute inset-0 z-40 bg-black/70 animate-fade-in" onClick={onClose} />
+    <div
+      className="fixed inset-0 z-[60] flex items-end justify-center px-6"
+      style={{ paddingBottom: keyboardOffset > 0 ? keyboardOffset + 10 : 'calc(env(safe-area-inset-bottom) + 16px)' }}
+    >
+      <div className="absolute inset-0 bg-black/70 animate-fade-in" onClick={onClose} />
       <div
-        className="absolute left-0 right-0 z-50 rounded-t-[28px] animate-slide-up"
-        style={{
-          backgroundColor: 'var(--surface)',
-          bottom: keyboardOffset,
-          paddingBottom: keyboardOffset > 0 ? '8px' : 'calc(env(safe-area-inset-bottom) + 8px)',
-        }}
+        className="relative w-full max-w-sm rounded-[28px] overflow-hidden animate-pop"
+        style={{ backgroundColor: 'var(--surface)' }}
       >
-        <div className="flex justify-center pt-3 pb-2">
-          <div className="w-9 h-1 rounded-full" style={{ backgroundColor: 'var(--surface-handle)' }} />
-        </div>
-
-        <div className="px-5 pb-4 space-y-4">
+        <div className="px-5 pt-5 pb-5 space-y-4">
           <p className="text-[10px] uppercase tracking-[0.12em] font-semibold" style={{ color: 'var(--text-secondary)' }}>
             Profile Name
           </p>
@@ -75,6 +70,6 @@ export default function CreateProfileModal({ isOpen, onConfirm, onClose }: Props
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
