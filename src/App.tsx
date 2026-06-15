@@ -180,6 +180,7 @@ export default function App() {
   const [showSetup, setShowSetup] = useState(false)
   const [showAddTx, setShowAddTx] = useState(false)
   const [tab, setTab] = useState<Tab>('dashboard')
+  const [dashReplay, setDashReplay] = useState(0)
   const [showHelp, setShowHelp] = useState(false)
   const [showEditSalary, setShowEditSalary] = useState(false)
   const [showEditSavings, setShowEditSavings] = useState(false)
@@ -220,6 +221,14 @@ export default function App() {
     t.style.transform = `translateX(-${activeIndex * (100 / 3)}%)`
     prevTabIndex.current = activeIndex
   }, [activeIndex])
+
+  // Replay the dashboard's count-up + circle each time you return to it (remount via key)
+  const dashSeen = useRef(false)
+  useEffect(() => {
+    if (tab !== 'dashboard') return
+    if (dashSeen.current) setDashReplay(k => k + 1)
+    else dashSeen.current = true
+  }, [tab])
 
   function tabTouchStart(e: React.TouchEvent) {
     tabStartX.current = e.touches[0].clientX
@@ -536,6 +545,7 @@ export default function App() {
                 </div>
                 <div className="h-full flex-shrink-0" style={{ width: '33.3333%' }}>
                   <Dashboard
+                    key={dashReplay}
                     profile={activeMonthProfile}
                     onDeleteTx={handleDeleteTx}
                     onEditSalary={() => setShowEditSalary(true)}
