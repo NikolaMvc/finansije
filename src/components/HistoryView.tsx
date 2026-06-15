@@ -232,7 +232,7 @@ export default function HistoryView({ isOpen, months, onAddTxToMonth, isLight, o
               className={`aspect-square rounded-xl flex flex-col items-center justify-center transition-all ${isSel ? 'ring-1 ring-white/40 scale-95' : ''}`}
               style={dayStyle}
             >
-              <span className="text-[11px] font-semibold" style={{ color: isToday ? '#ffffff' : dayColor }}>{day}</span>
+              <span className="text-[11px] font-semibold" style={{ color: isToday ? (isLight ? '#111827' : '#ffffff') : dayColor }}>{day}</span>
               {net !== null && (
                 <span className="text-[8px] opacity-70 leading-tight" style={{ color: dayColor }}>
                   {net >= 0 ? '+' : ''}{net.toFixed(0)}

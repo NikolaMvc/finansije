@@ -524,7 +524,7 @@ export default function App() {
               onTouchMove={tabTouchMove}
               onTouchEnd={tabTouchEnd}
             >
-              <div ref={attachTrack} className="flex h-full" style={{ width: '300%' }}>
+              <div ref={attachTrack} className="flex h-full" style={{ width: '300%', willChange: 'transform' }}>
                 <div className="h-full flex-shrink-0" style={{ width: '33.3333%' }}>
                   <HistoryView
                     isOpen
