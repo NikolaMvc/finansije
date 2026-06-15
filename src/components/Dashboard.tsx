@@ -85,8 +85,6 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
   const now = new Date()
   const isCurrentMonth = now.getFullYear() === profile.year && now.getMonth() + 1 === profile.month
   const daysPassed = isCurrentMonth ? now.getDate() : daysInMonth
-  // Count today as a remaining day (e.g. on the 14th of a 30-day month → 17 left)
-  const daysLeft = isCurrentMonth ? daysInMonth - daysPassed + 1 : 0
   const monthProgress = daysPassed / daysInMonth
 
   // Spending progress: how much of total monthly budget has been spent
@@ -260,9 +258,6 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
           <MonthProgressCircle
             progress={monthProgress}
             spentProgress={spentProgress}
-            daysLeft={daysLeft}
-            daysPassed={daysPassed}
-            daysInMonth={daysInMonth}
             onClick={() => setShowCircleInfo(true)}
           />
         </div>
@@ -337,12 +332,6 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
                 <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5" style={{ backgroundColor: '#10b981' }} />
                 <span className="text-sm leading-snug" style={{ color: 'var(--text-secondary)' }}>
                   Green fill — fills from bottom up as the month progresses
-                </span>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-0.5 border" style={{ backgroundColor: 'var(--surface-hover)', borderColor: 'var(--surface-border)' }} />
-                <span className="text-sm leading-snug" style={{ color: 'var(--text-secondary)' }}>
-                  Number — days left until month end, today included ({daysLeft})
                 </span>
               </div>
             </div>

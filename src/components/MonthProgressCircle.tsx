@@ -3,9 +3,6 @@ import { useState, useEffect, useRef } from 'react'
 interface Props {
   progress: number
   spentProgress: number
-  daysLeft: number
-  daysPassed: number
-  daysInMonth: number
   onClick: () => void
 }
 
@@ -30,15 +27,14 @@ function useAnimatedValue(target: number, duration: number) {
   return value
 }
 
-export default function MonthProgressCircle({ progress, spentProgress, daysLeft, daysPassed, daysInMonth, onClick }: Props) {
+export default function MonthProgressCircle({ progress, spentProgress, onClick }: Props) {
   const animMonth = useAnimatedValue(progress, 1200)
   const animSpent = useAnimatedValue(spentProgress, 1400)
 
   const cx = 90, cy = 90
-  const blueR = 80,  blueStroke = 10
-  const redR  = 63,  redStroke  = 10
-  const greenR = 46
-  const viewH = 180
+  const blueR = 77, blueStroke = 14
+  const redR  = 60, redStroke  = 14
+  const greenR = 49
 
   const blueCirc = 2 * Math.PI * blueR
   const redCirc  = 2 * Math.PI * redR
@@ -50,21 +46,13 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
   const fillHeight = Math.max(0, greenR * 2 * animMonth)
   const fillY = cy + greenR - fillHeight
 
-  const isLight = document.documentElement.classList.contains('light')
-
-  // Number color — same yellow as the Remaining / Daily Budget cards
-  const numColor = isLight ? '#d97706' : '#fcd34d'
-  // Dark mode: thin dark outline so the yellow stays readable over the green fill
-  const numStroke = isLight ? 'none' : 'rgba(0,0,0,0.55)'
-  const numStrokeWidth = isLight ? 0 : 1
-
   return (
     <button
       onClick={onClick}
       className="active:scale-[0.96] transition-transform"
       aria-label="Month progress"
     >
-      <svg viewBox={`0 0 180 ${viewH}`} width="176" height="176">
+      <svg viewBox="0 0 180 180" width="180" height="180">
         <defs>
           <clipPath id="mpGreenClip">
             <rect x={cx - greenR} y={fillY} width={greenR * 2} height={fillHeight} />
@@ -104,13 +92,6 @@ export default function MonthProgressCircle({ progress, spentProgress, daysLeft,
           strokeLinecap="round"
           transform={`rotate(-90 ${cx} ${cy})`}
         />
-
-        {/* Number — centered, yellow like the Remaining card */}
-        <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central"
-          fontSize="34" fontWeight="700" fill={numColor}
-          stroke={numStroke} strokeWidth={numStrokeWidth} paintOrder="stroke" strokeLinejoin="round">
-          {daysLeft}
-        </text>
       </svg>
     </button>
   )
