@@ -135,7 +135,7 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
           <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>Remaining</p>
           <motion.div
             {...CARD}
-            transition={{ duration: 0.3, delay: 0.02, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.16, delay: 0, ease: [0.25, 0.46, 0.45, 0.94] }}
             className="rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
             style={remainingCS}
           >
@@ -153,7 +153,7 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
           <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>Savings</p>
           <motion.button
             {...CARD}
-            transition={{ default: { duration: 0.3, delay: 0.05, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
+            transition={{ default: { duration: 0.16, delay: 0.03, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
             whileTap={{ scale: 0.93 }}
             onClick={onEditSavings}
             className="w-full rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
@@ -176,7 +176,7 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
           <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>Salary</p>
           <motion.button
             {...CARD}
-            transition={{ default: { duration: 0.3, delay: 0.08, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
+            transition={{ default: { duration: 0.16, delay: 0.06, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
             whileTap={{ scale: 0.93 }}
             onClick={onEditSalary}
             className="w-full rounded-[20px] px-3 py-4 flex items-center justify-center min-h-[80px]"
@@ -203,7 +203,7 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
 
         <motion.button
           {...CARD}
-          transition={{ default: { duration: 0.3, delay: 0.10, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
+          transition={{ default: { duration: 0.16, delay: 0.09, ease: [0.25, 0.46, 0.45, 0.94] }, scale: SPRING }}
           whileTap={{ scale: 0.985 }}
           onClick={() => setExpanded(e => !e)}
           className="w-full rounded-[20px] px-5 py-5 flex items-center justify-between"
@@ -272,7 +272,7 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
       <div className="flex-none px-4 mt-3 flex gap-2.5">
         <motion.div
           {...CARD}
-          transition={{ duration: 0.3, delay: 0.13, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.16, delay: 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="flex-1"
         >
           <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>
@@ -291,7 +291,7 @@ export default function Dashboard({ profile, onDeleteTx, onEditSalary, onEditSav
 
         <motion.div
           {...CARD}
-          transition={{ duration: 0.3, delay: 0.16, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 0.16, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="flex-1"
         >
           <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: 'var(--text-faint)' }}>
