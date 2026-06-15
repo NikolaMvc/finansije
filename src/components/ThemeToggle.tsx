@@ -1,9 +1,15 @@
+import { useState, useEffect } from 'react'
+
 interface Props {
   isLight: boolean
   onToggle: () => void
 }
 
 export default function ThemeToggle({ isLight, onToggle }: Props) {
+  // Enable the slide transition only after mount so the indicator doesn't animate
+  // from translateX(0) when the (off-screen) toggle is first painted in light mode
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
   // Pill: 66×32, border 1px → padding box 64×30
   // Circle Ø24 (gap 3 top/bottom). Moon center (15,15), Sun center (49,15) → translateX 34
   // Icons positioned absolutely at the SAME spot as the circle, so each is dead-centered.
@@ -37,7 +43,7 @@ export default function ThemeToggle({ isLight, onToggle }: Props) {
           backgroundColor: isLight ? '#ffffff' : 'rgba(255,255,255,0.22)',
           boxShadow: isLight ? '0 1px 4px rgba(0,0,0,0.18)' : 'none',
           transform: isLight ? `translateX(${shift}px)` : 'translateX(0)',
-          transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transition: mounted ? 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
         }}
       />
 

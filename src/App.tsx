@@ -270,7 +270,7 @@ export default function App() {
     const dx = finalX - tabStartX.current
     const elapsed = Date.now() - tabVelT.current
     const vel = elapsed > 0 && elapsed < 200 ? (finalX - tabVelX.current) / elapsed : 0
-    const threshold = tabWidth.current * 0.22
+    const threshold = tabWidth.current * 0.12
 
     let target = activeIndex
     if ((dx > threshold || vel > 0.4) && activeIndex > 0) target = activeIndex - 1
