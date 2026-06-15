@@ -9,7 +9,7 @@ import ThemeToggle from './ThemeToggle'
 const MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 const CARD = {
-  initial: { opacity: 0, y: 14 },
+  initial: false as const,
   animate: { opacity: 1, y: 0 },
 }
 const SPRING = { type: 'spring' as const, stiffness: 380, damping: 18 }
